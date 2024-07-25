@@ -2,31 +2,52 @@ version: 2.1
 orbs:
   architect: giantswarm/architect@5.2.1
 
+jobs:
+  push-to-registries:
+    executor: "architect"
+    steps:
+      - checkout
+      - setup_remote_docker:
+          version: default
+      - attach_workspace:
+          at: .
+      - architect/image-prepare-tag:
+          tag-suffix: ""
+      - architect/image-login-to-registries:
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      - run:
+          name: Build the container image using 'docker build'
+          command: |
+            docker build -f "./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile" "./app-deployment-promise/containers" --progress plain 2>&1 | tee .docker.log
+      - run:
+          name: Save container image SHA256 to temp file
+          command: |
+            awk -F" " '/^#[0-9]+ writing image sha256:[0-9a-f]{40}/ {print $4;exit}' .docker.log | tee .image_sha256
+            echo 'export DOCKER_IMAGE_SHA256=$(cat .image_sha256)' >> $BASH_ENV
+      #      - name: image-build-with-docker
+      #        run: docker build
+      #- image-push-to-registries:
+      #    image-sha256_envvar: DOCKER_IMAGE_SHA256
+      #    image: <<parameters.image>>
+      #    tag_envvar: DOCKER_IMAGE_TAG
+      #    build-context: <<parameters.build-context>>
+      #    dockerfile: <<parameters.dockerfile>>
+      #    force-public: <<parameters.force-public>>
+      #    tag-latest-branch: <<parameters.tag-latest-branch>>
+      #    tag-suffix: <<parameters.tag-suffix>>
+      #    registries-data: <<parameters.registries-data>>
+
 workflows:
   build-app-deployment-promise-appdeployment-template:
     jobs:
-      - architect/push-to-registries:
-          context: architect
-          name: push-to-registries
-          image: giantswarm/appdeployment-template-pipeline
-          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile --build-context shared=../shared
-          build-context: ./app-deployment-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      - push-to-registries
+        #          context: architect
+        #          name: push-to-registries
+        #          image: giantswarm/appdeployment-template-pipeline
+        #          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile --build-context shared=../shared
+        #          build-context: ./app-deployment-promise/containers
+        #          registries-data: |-
+        #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
 
-#version: 2.1
-#setup: true
-#
-#orbs:
-#  dynamic: bjd2385/dynamic-continuation@3.8.2
-#
-#jobs: {}
-#
-#workflows:
-#  on-commit:
-#    jobs:
-#      - dynamic/continue:
-#          context: circleci
-#          # auto-detect: true
-#          modules: |
-#            /app-deployment-promise
+  # docker build --build-context shared=../shared -t "$image_name" .
