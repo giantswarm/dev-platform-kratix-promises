@@ -45,7 +45,7 @@ workflows:
           context: architect
           name: push-to-registries
           image: giantswarm/appdeployment-template-pipeline
-          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile --build-context shared=../shared
+          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
