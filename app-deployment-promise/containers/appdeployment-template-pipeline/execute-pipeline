@@ -1,0 +1,113 @@
+#!/bin/bash -e
+
+### TESTING BLOCK ###
+function mock_kubectl() {
+  if [[ "$3" == blah-* ]]; then
+    VIS=${3#*-}
+    cat >"$STATUS_CONFIGMAP_PATH" <<EOF
+data:
+  repoName: "github-repo"
+  fluxHelmRepositoryName: "flux-helm-repository"
+  repoVisibility: "$VIS"
+  registryInfoConfigMapName: github-oci-registry-info
+EOF
+  fi
+  if [[ "$3" == "github-oci-registry-info" ]]; then
+    cat >"$REGINFO_CONFIGMAP_PATH" <<EOF
+data:
+  registry_pull_secret_name: ghcr-pull-secret
+EOF
+  fi
+}
+function setup_mocks() {
+  echo "Setting up mock tools"
+  shopt -s expand_aliases
+  alias kubectl=mock_kubectl
+}
+
+### IMPLEMENTATION BLOCK ###
+if [[ -n "$TEST_RUN" ]]; then
+  setup_mocks
+fi
+
+. ../shared/common.sh
+check_binaries yq kubectl
+
+if [[ ! -f $KRATIX_INPUT ]]; then
+  echo "Error: $KRATIX_INPUT not found"
+  exit 1
+fi
+OBJ_NAME=$(yq '.metadata.name' "$KRATIX_INPUT")
+OBJ_NAMESPACE=$(yq '.metadata.namespace' "$KRATIX_INPUT")
+if [[ "$OBJ_NAMESPACE" == "null" ]]; then
+  OBJ_NAMESPACE="default"
+fi
+STATUS_CONFIGMAP_NAME=$(yq '.spec.statusConfigMapReference.name' "$KRATIX_INPUT")
+
+STATUS_CONFIGMAP_PATH=/tmp/status-configmap.yaml
+if ! kubectl get configmap "$STATUS_CONFIGMAP_NAME" -n "$OBJ_NAMESPACE" -o yaml >"$STATUS_CONFIGMAP_PATH"; then
+  write_metadata_message "Can't load $OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME config map."
+  exit 2
+fi
+
+KEY=".data.repoName"
+GITHUB_REPO_NAME=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
+if [[ "$GITHUB_REPO_NAME" == "null" ]]; then
+  write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
+  exit 3
+fi
+KEY=".data.fluxHelmRepositoryName"
+HELM_REPO_NAME=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
+if [[ "$HELM_REPO_NAME" == "null" ]]; then
+  write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
+  exit 4
+fi
+KEY=".data.repoVisibility"
+GITHUB_REPO_VISIBILITY=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
+if [[ "$GITHUB_REPO_VISIBILITY" == "null" ]]; then
+  write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
+  exit 4
+fi
+KEY=".data.registryInfoConfigMapName"
+REGINFO_CONFIGMAP_NAME=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
+if [[ "$REGINFO_CONFIGMAP_NAME" == "null" ]]; then
+  write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
+  exit 4
+fi
+export GITHUB_REPO_NAME
+export HELM_REPO_NAME
+
+cp /files/HelmRelease.yaml /kratix/output/
+HELM_RELEASE_PATH=/kratix/output/HelmRelease.yaml
+
+if [[ "$GITHUB_REPO_VISIBILITY" != "public" ]]; then
+  REGINFO_CONFIGMAP_PATH=/tmp/reginfo-configmap.yaml
+  if ! kubectl get configmap "$REGINFO_CONFIGMAP_NAME" -n "$OBJ_NAMESPACE" -o yaml >"$REGINFO_CONFIGMAP_PATH"; then
+    write_metadata_message "Can't load $OBJ_NAMESPACE/$REGINFO_CONFIGMAP_NAME config map."
+    exit 2
+  fi
+  KEY=".data.registry_pull_secret_name"
+  PULL_SECRET_NAME=$(yq "$KEY" "$REGINFO_CONFIGMAP_PATH")
+  if [[ "$PULL_SECRET_NAME" == "null" ]]; then
+    write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$REGINFO_CONFIGMAP_NAME' ConfigMap."
+    exit 4
+  fi
+  yq -i ".spec.values.imagePullSecrets.[0].name = \"$PULL_SECRET_NAME\"" "$HELM_RELEASE_PATH"
+fi
+
+export OBJ_NAME
+export OBJ_NAMESPACE
+yq -i '.metadata.name = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
+yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' "$HELM_RELEASE_PATH"
+yq -i '.spec.chart.spec.chart = strenv(GITHUB_REPO_NAME)' "$HELM_RELEASE_PATH"
+yq -i '.spec.chart.spec.sourceRef.name = strenv(HELM_REPO_NAME)' "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.interval' '.spec.interval = strenv(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.version // "*"' '.spec.chart.spec.version = strenv(VAR) | . style="double"' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.dependsOn' '.spec.dependsOn = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.kubeConfig' '.spec.kubeConfig = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.suspend // false' '.spec.suspend = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.timeout' '.spec.timeout = strenv(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.values' '.spec.values *= env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.valuesFrom' '.spec.valuesFrom = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+
+write_metadata_message "HelmRelease object '$OBJ_NAMESPACE/$OBJ_NAME' successfully created"

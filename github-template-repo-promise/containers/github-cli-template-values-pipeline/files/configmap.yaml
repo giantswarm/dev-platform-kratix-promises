@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: <objName>-info
+  namespace: <objNamespace>
+data:
+  repoName: <repoName>
+  repoOwner: <repoOwner>
+  repoVisibility: <repoVisibility>
+  repoProvider: <repoProvider>
+  fluxHelmRepositoryName: <objName>
+  registryInfoConfigMapName: <regInfoConfigMapName>

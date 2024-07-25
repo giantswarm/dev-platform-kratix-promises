@@ -1,0 +1,14 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: githubrepo
+metadata:
+  name: my-go-project-1
+spec:
+  repository:
+    name: test_repo
+    owner: littleswarm
+    description: "My first kratix project"
+    templateSource: giantswarm/devplatform-template-go-service
+    visibility: private
+  githubTokenSecretRef:
+    name: github-create-repo-token
+  destinationNamespace: default

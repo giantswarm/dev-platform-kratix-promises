@@ -1,0 +1,37 @@
+#!/bin/bash -e
+
+### TESTING BLOCK ###
+function setup_mocks() {
+  echo "Setting up mock tools"
+  shopt -s expand_aliases
+}
+
+### IMPLEMENTATION BLOCK ###
+if [[ -n "$TEST_RUN" ]]; then
+  setup_mocks
+fi
+
+. ../shared/common.sh
+check_binaries yq
+
+if [[ ! -f $KRATIX_INPUT ]]; then
+  echo "Error: $KRATIX_INPUT not found"
+  exit 1
+fi
+OBJ_NAME=$(yq '.metadata.name' "$KRATIX_INPUT")
+OBJ_NAMESPACE=$(yq '.metadata.namespace' "$KRATIX_INPUT")
+if [[ "$OBJ_NAMESPACE" == "null" ]]; then
+  OBJ_NAMESPACE="default"
+fi
+
+cp /files/*.yaml /kratix/output/
+
+#TODO: Replace with actual implementation
+export OBJ_NAME
+export OBJ_NAMESPACE
+yq -i '.metadata.name = strenv(OBJ_NAME)' /kratix/output/*.yaml
+yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/*.yaml
+
+write_metadata_message "Infrastructure requested with Crossplane using CROSSPLANE-MAGIC object '$OBJ_NAMESPACE/$OBJ_NAME'"
+
+exit 0

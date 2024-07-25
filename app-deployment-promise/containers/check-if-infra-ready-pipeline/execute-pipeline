@@ -1,0 +1,40 @@
+#!/bin/bash -e
+
+### TESTING BLOCK ###
+
+function mock_kubectl() {
+  echo "IN TEST: kubectl $*"
+}
+function setup_mocks() {
+  echo "Setting up mock tools"
+  shopt -s expand_aliases
+  alias kubectl=mock_kubectl
+}
+
+### IMPLEMENTATION BLOCK ###
+if [[ -n "$TEST_RUN" ]]; then
+  setup_mocks
+fi
+
+. ../shared/common.sh
+check_binaries kubectl
+
+if [[ ! -f $KRATIX_INPUT ]]; then
+  echo "Error: $KRATIX_INPUT not found"
+  exit 1
+fi
+OBJ_NAME=$(yq '.metadata.name' "$KRATIX_INPUT")
+OBJ_NAMESPACE=$(yq '.metadata.namespace' "$KRATIX_INPUT")
+if [[ "$OBJ_NAMESPACE" == "null" ]]; then
+  OBJ_NAMESPACE="default"
+fi
+
+echo "Waiting for infrastructure to be provisioned" | tee "$KRATIX_META"
+#TODO: Replace with actual implementation
+while ! kubectl -n "$OBJ_NAMESPACE" get cm "$OBJ_NAME" &>/dev/null; do
+  sleep 5
+done
+
+write_metadata_message "Infrastructure successfully provisioned"
+
+exit 0

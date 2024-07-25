@@ -1,0 +1,1 @@
+message: "Error: Container registry information failed to load from the ConfigMap 'default/noconfigmap'."

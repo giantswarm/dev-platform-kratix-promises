@@ -1,0 +1,133 @@
+---
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  name: githubrepo
+  labels:
+    kratix.io/promise-version: v0.0.1
+  namespace: default
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: githubrepos.promise.platform.giantswarm.io
+    spec:
+      group: promise.platform.giantswarm.io
+      scope: Namespaced
+      names:
+        plural: githubrepos
+        singular: githubrepo
+        kind: githubrepo
+      versions:
+        - name: v1beta1
+          served: true
+          storage: true
+          schema:
+            openAPIV3Schema:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  required:
+                    - repository
+                    - registryInfoConfigMapRef
+                  properties:
+                    repository:
+                      description: New repository configuration.
+                      required:
+                        - owner
+                        - name
+                        - description
+                        - templateSource
+                        - visibility
+                      type: object
+                      properties:
+                        owner:
+                          description: A name of the owning GitHub organization or user.
+                          type: string
+                        name:
+                          description: A name for the new repository.
+                          type: string
+                        description:
+                          description: A description of the new repository.
+                          type: string
+                        templateSource:
+                          description: A full name (`user/repository`) of a GitHub template repository to use.
+                          type: string
+                        visibility:
+                          description: Visibility of the created repo.
+                          enum:
+                            - public
+                            - internal
+                            - private
+                          type: string
+                    githubTokenSecretRef:
+                      description: >-
+                        The name and namespace of a Secret that has a key named "gh_token" with value if a GitHub
+                        authentication token used to create a new repository.
+                      required:
+                        - name
+                      type: object
+                      properties:
+                        name:
+                          description: Object name.
+                          type: string
+                        namespace:
+                          description: Object's namespace.
+                          type: string
+                    registryInfoConfigMapRef:
+                      description: >-
+                        The name and namespace of a ConfigMap that has keys named "registry_domain", 
+                        "registry_username" and "registry_cicd_secret_ref" that configure access to 
+                        the image registry in the CICD GitHib Action.
+                      required:
+                        - name
+                      type: object
+                      properties:
+                        name:
+                          description: Object name.
+                          type: string
+                        namespace:
+                          description: Object's namespace.
+                          type: string
+  workflows:
+    resource:
+      configure:
+        - apiVersion: platform.kratix.io/v1alpha1
+          kind: Pipeline
+          metadata:
+            name: github-repo-create
+          spec:
+            volumes:
+              - name: repo
+                emptyDir: {}
+            containers:
+              - name: github-cli-clone-template-repo-pipeline
+                image: docker.io/giantswarm/github-cli-clone-template-repo-pipeline
+                imagePullPolicy: IfNotPresent
+                envFrom:
+                  - secretRef:
+                      name: dev-platform-gh-access
+              - name: github-cli-template-values-pipeline
+                image: docker.io/giantswarm/github-cli-template-values-pipeline
+                imagePullPolicy: IfNotPresent
+                envFrom:
+                  - secretRef:
+                      name: dev-platform-gh-access
+                volumeMount:
+                  - name: repo
+                    mountPath: /tmp/repo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: githubrepo-resource-pipeline-admin
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admin
+subjects:
+  - kind: ServiceAccount
+    name: githubrepo-resource-pipeline
+    namespace: default
