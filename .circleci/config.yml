@@ -11,4 +11,6 @@ workflows:
     jobs:
       - dynamic/continue:
           context: circleci
-          auto-detect: true
+          # auto-detect: true
+          modules: |
+            /app-deployment-promise
