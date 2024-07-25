@@ -1,0 +1,15 @@
+version: 2.1
+orbs:
+  architect: giantswarm/architect@5.2.1
+
+workflows:
+  build-app-deployment-promise-appdeployment-template:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: push-to-registries
+          image: giantswarm/appdeployment-template-pipeline
+          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile --build-context shared=../shared
+          build-context: ./app-deployment-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true

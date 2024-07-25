@@ -1,0 +1,14 @@
+version: 2.1
+setup: true
+
+orbs:
+  dynamic: bjd2385/dynamic-continuation@3.8.2
+
+jobs: {}
+
+workflows:
+  on-commit:
+    jobs:
+      - dynamic/continue:
+          context: circleci
+          auto-detect: true
