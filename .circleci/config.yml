@@ -4,7 +4,7 @@ orbs:
 
 jobs:
   execute-tests:
-    executor: "architect"
+    executor: "machine"
     steps:
       - run: "cd ./app-deployment-promise && ./test-all.sh"
 
