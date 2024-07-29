@@ -2,6 +2,12 @@ version: 2.1
 orbs:
   architect: giantswarm/architect@5.2.1
 
+jobs:
+  execute-tests:
+    executor: "architect"
+    steps:
+      - run: "cd ./app-deployment-promise && ./test-all.sh"
+
 workflows:
   build-app-deployment-promise:
     jobs:
@@ -29,6 +35,11 @@ workflows:
           build-context: ./app-deployment-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      - execute-tests:
+          requires:
+            - build-appdeployment-template
+            - build-check-if-infra-ready
+            - build-provision-infrastructure
   build-github-template-repo-promise:
     jobs:
       - architect/push-to-registries:
