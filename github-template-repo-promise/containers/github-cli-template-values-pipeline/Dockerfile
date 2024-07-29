@@ -1,6 +1,6 @@
 FROM gsoci.azurecr.io/giantswarm/kratix-github-cli:0.1.0
-COPY execute-pipeline /bin/execute-pipeline
-COPY --from=shared . /shared
-COPY ./files/ /files/
+COPY github-cli-template-values-pipeline/execute-pipeline /bin/execute-pipeline
+COPY ./shared /shared
+COPY github-cli-template-values-pipeline/files/ /files/
 CMD [ "bash", "-c", "/bin/execute-pipeline"]
 ENTRYPOINT [] 

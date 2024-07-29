@@ -3,7 +3,7 @@ orbs:
   architect: giantswarm/architect@5.2.1
 
 workflows:
-  build-app-deployment-promise-appdeployment-template:
+  build-app-deployment-promise:
     jobs:
       - architect/push-to-registries:
           context: architect
@@ -27,5 +27,23 @@ workflows:
           image: giantswarm/provision-infrastructure-pipeline
           dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+  build-github-template-repo-promise:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-clone-template-repo
+          image: giantswarm/github-cli-clone-template-repo-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-promise/Dockerfile
+          build-context: ./github-template-repo-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-template-values
+          image: giantswarm/github-cli-template-values-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
+          build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
