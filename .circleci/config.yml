@@ -6,9 +6,12 @@ jobs:
   execute-tests:
     machine:
       image: default
+    parameters:
+      promise-dir:
+        type: string
     steps:
       - checkout
-      - run: "cd ./app-deployment-promise && ./test-all.sh"
+      - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
 
 workflows:
   build-app-deployment-promise:
@@ -38,6 +41,7 @@ workflows:
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
       - execute-tests:
+          promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template
             - build-check-if-infra-ready

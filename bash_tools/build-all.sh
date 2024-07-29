@@ -7,7 +7,7 @@ for dir in containers/*; do
   if [[ ! -d "$dir" || ! -f "$dir/Dockerfile" ]]; then
     continue
   fi
-  image_name="$images_registry/$(basename "$dir")"
+  image_name="$images_registry/$images_repo/$(basename "$dir")"
   echo "Building $image_name..."
   docker build -f "$dir/Dockerfile" -t "$image_name" containers
 done
