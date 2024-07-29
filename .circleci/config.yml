@@ -64,3 +64,8 @@ workflows:
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      - execute-tests:
+          promise-dir: "app-deployment-promise"
+          requires:
+            - build-github-cli-clone-template-repo
+            - build-github-cli-template-values
