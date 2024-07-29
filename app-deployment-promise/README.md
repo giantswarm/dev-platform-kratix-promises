@@ -1,22 +1,11 @@
-# Writing a Promise
+# App Deployment Promise
 
-This repository is an aid for the [Writing a Promise](https://kratix.io/docs/workshop/writing-a-promise)
-section of the Kratix workshop.
+This promise allows to deploy a project created with [GitHub Template Repository Promise](../github-template-repo-promise/README.md) to an existing Kubernetes cluster.
 
-To build all the images:
+## Usage
 
-```
-./build-all.sh
-```
+This resource is shaped after `HelmRelease` from Flux, as it is translated to one. Some fields are set automatically based on the status config map coming from the GitHub Template Repository Promise.
 
-To install:
+### Note about permissions
 
-```
-kubectl apply -f promise.yaml
-```
-
-To make a resource request:
-
-```
-kubectl apply -f resource-request.yaml
-```
+By default, kratix creates a new ServiceAccount for each namespace it runs resource request piplines in. Currently, this ServiceAccount has to be manually associated with needed roles.
