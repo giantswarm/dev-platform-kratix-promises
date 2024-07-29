@@ -24,6 +24,9 @@ workflows:
           build-context: ./app-deployment-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-check-if-infra-ready
@@ -32,6 +35,9 @@ workflows:
           build-context: ./app-deployment-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-provision-infrastructure
@@ -40,12 +46,18 @@ workflows:
           build-context: ./app-deployment-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - execute-tests:
           promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template
             - build-check-if-infra-ready
             - build-provision-infrastructure
+          filters:
+            tags:
+              only: /.*/
   build-github-template-repo-promise:
     jobs:
       - architect/push-to-registries:
@@ -56,6 +68,9 @@ workflows:
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-github-cli-template-values
@@ -64,8 +79,14 @@ workflows:
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - execute-tests:
           promise-dir: "app-deployment-promise"
           requires:
             - build-github-cli-clone-template-repo
             - build-github-cli-template-values
+          filters:
+            tags:
+              only: /.*/
