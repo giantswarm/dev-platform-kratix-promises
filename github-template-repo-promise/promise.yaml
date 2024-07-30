@@ -104,13 +104,13 @@ spec:
                 emptyDir: {}
             containers:
               - name: github-cli-clone-template-repo-pipeline
-                image: docker.io/giantswarm/github-cli-clone-template-repo-pipeline
+                image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline
                 imagePullPolicy: IfNotPresent
                 envFrom:
                   - secretRef:
                       name: dev-platform-gh-access
               - name: github-cli-template-values-pipeline
-                image: docker.io/giantswarm/github-cli-template-values-pipeline
+                image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline
                 imagePullPolicy: IfNotPresent
                 envFrom:
                   - secretRef:
@@ -118,16 +118,3 @@ spec:
                 volumeMount:
                   - name: repo
                     mountPath: /tmp/repo
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: githubrepo-resource-pipeline-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
-subjects:
-  - kind: ServiceAccount
-    name: githubrepo-resource-pipeline
-    namespace: default

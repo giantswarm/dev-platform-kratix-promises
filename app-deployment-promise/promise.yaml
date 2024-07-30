@@ -190,7 +190,7 @@ spec:
           spec:
             containers:
               - name: crossplane-provisioner
-                image: docker.io/giantswarm/provision-infrastructure-pipeline
+                image: gsoci.azurecr.io/giantswarm/provision-infrastructure-pipeline
                 imagePullPolicy: IfNotPresent
         - apiVersion: platform.kratix.io/v1alpha1
           kind: Pipeline
@@ -199,21 +199,8 @@ spec:
           spec:
             containers:
               - name: wait-for-infra
-                image: docker.io/giantswarm/check-if-infra-ready-pipeline
+                image: gsoci.azurecr.io/giantswarm/check-if-infra-ready-pipeline
                 imagePullPolicy: IfNotPresent
               - name: template-values
-                image: docker.io/giantswarm/appdeployment-template-pipeline
+                image: gsoci.azurecr.io/giantswarm/appdeployment-template-pipeline
                 imagePullPolicy: IfNotPresent
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: appdeployment-resource-pipeline-admin
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: admin
-subjects:
-  - kind: ServiceAccount
-    name: appdeployment-resource-pipeline
-    namespace: default
