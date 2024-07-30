@@ -1,0 +1,25 @@
+#!/bin/bash -ex
+
+### TESTING BLOCK ###
+
+function mock_kubectl() {
+	echo "IN TEST: kubectl $*"
+}
+function setup_mocks() {
+	echo "Setting up mock tools"
+	shopt -s expand_aliases
+	alias kubectl=mock_kubectl
+}
+
+### IMPLEMENTATION BLOCK ###
+
+if [[ -n "$TEST_RUN" ]]; then
+	setup_mocks
+fi
+
+. ../shared/common.sh
+
+check_binaries
+load_kratix_input
+
+exit 0

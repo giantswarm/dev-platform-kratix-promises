@@ -1,0 +1,45 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  name: PROMISE_NAME
+  labels:
+    kratix.io/promise-version: v0.0.1
+  namespace: default
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: PROMISE_NAME.promise.platform.giantswarm.io
+    spec:
+      group: promise.platform.giantswarm.io
+      scope: Namespaced
+      names:
+        plural: PROMISE_NAME
+        singular: PROMISE_NAME
+        kind: PROMISE_NAME
+      versions:
+        - name: v1beta1
+          served: true
+          storage: true
+          schema:
+            openAPIV3Schema:
+              type: object
+              properties:
+                spec:
+                  type: object
+                  required:
+                    - XYZ
+                  properties: {}
+  workflows:
+    resource:
+      configure:
+        - apiVersion: platform.kratix.io/v1alpha1
+          kind: Pipeline
+          metadata:
+            name: DO_STUFF
+          spec:
+            containers:
+              - name: CONT_NAME
+                image: IMG
+                imagePullPolicy: IfNotPresent
