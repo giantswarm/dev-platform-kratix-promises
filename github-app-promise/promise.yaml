@@ -18,7 +18,7 @@ spec:
       names:
         plural: githubapps
         singular: githubapp
-        kind: githubapp
+        kind: GithubApp
       versions:
         - name: v1beta1
           served: true
