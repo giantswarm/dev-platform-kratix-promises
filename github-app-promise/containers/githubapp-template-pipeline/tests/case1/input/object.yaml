@@ -1,0 +1,5 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: MY_KIND
+metadata:
+  name: my-project-1
+spec: {}

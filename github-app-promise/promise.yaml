@@ -1,0 +1,74 @@
+---
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  name: githubapp
+  labels:
+    kratix.io/promise-version: v0.0.1
+  namespace: default
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: githubapps.promise.platform.giantswarm.io
+    spec:
+      group: promise.platform.giantswarm.io
+      scope: Namespaced
+      names:
+        plural: githubapps
+        singular: githubapp
+        kind: githubapp
+      versions:
+        - name: v1beta1
+          served: true
+          storage: true
+          schema:
+            openAPIV3Schema:
+              description: A combo of AppDeloyment and GithubRepo
+              type: object
+              required:
+                - spec
+              properties:
+                spec:
+                  type: object
+                  required:
+                    - githubRepo
+                    - appDeployment
+                  properties:
+                    githubRepo:
+                      type: object
+                      required:
+                        - name
+                        - spec
+                      properties:
+                        name:
+                          description: Name of the githuprepo object to create
+                          type: string
+                        spec:
+                          description: The spec of a githubrepo object
+                          x-kubernetes-preserve-unknown-fields: true
+                    appDeployment:
+                      type: object
+                      required:
+                        - name
+                        - spec
+                      properties:
+                        name:
+                          description: Name of the appdeployment object to create
+                          type: string
+                        spec:
+                          description: The spec of a githubrepo object. Status config map of githubrepo will be set automatically.
+                          x-kubernetes-preserve-unknown-fields: true
+  workflows:
+    resource:
+      configure:
+        - apiVersion: platform.kratix.io/v1alpha1
+          kind: Pipeline
+          metadata:
+            name: template-requests
+          spec:
+            containers:
+              - name: template-requests
+                image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
+                imagePullPolicy: IfNotPresent
