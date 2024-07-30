@@ -1,0 +1,1 @@
+../bash_tools/build-all.sh

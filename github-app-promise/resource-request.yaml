@@ -1,0 +1,6 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: MY_PROMISE
+metadata:
+  name: MY_NAME
+spec:
+  SPEC: HERE
