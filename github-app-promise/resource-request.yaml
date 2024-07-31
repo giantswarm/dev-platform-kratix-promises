@@ -20,7 +20,11 @@ spec:
     name: my-go-project-dev
     spec:
       interval: 1m
+      statusConfigMapReference:
+        name: blah
       version: ">=0.1.0"
+      dependsOn:
+        - test1
       kubeConfig:
         secretRef:
           name: stage-kubeconfig
