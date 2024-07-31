@@ -3,7 +3,7 @@ kind: GitHubApp
 metadata:
   name: my-go-project-1
 spec:
-  githubapp:
+  githubRepo:
     name: my-go-project-1
     spec:
       repository:
@@ -16,7 +16,7 @@ spec:
         name: github-oci-registry-info
       githubTokenSecretRef:
         name: dev-platform-gh-access
-  appdeployment:
+  appDeployment:
     name: my-go-project-dev
     spec:
       interval: 1m
