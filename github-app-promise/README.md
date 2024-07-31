@@ -1,22 +1,12 @@
-# Writing a Promise
+# GitHubApp Promise
 
-This repository is an aid for the [Writing a Promise](https://kratix.io/docs/workshop/writing-a-promise)
-section of the Kratix workshop.
+This promise combines the [GitHubRepo](../github-template-repo-promise/README.md) and [AppDeployment](../app-deployment-promise/README.md) promises to provide a complete GitHub App deployment solution.
 
-To build all the images:
+The purpose of it is:
 
-```
-./build-all.sh
-```
+- to demonstrate how one can combine smaller promises into bigger ones, that can automate part of the work required to create lower level promises separately,
+- to make the bootstrapping of a new project easier, so that a new `GitHubRepo` and `AppDeployment` can be created in one go.
 
-To install:
+## Implementation
 
-```
-kubectl apply -f promise.yaml
-```
-
-To make a resource request:
-
-```
-kubectl apply -f resource-request.yaml
-```
+This promise renders the two other promises: `GitHubRepo` and `AppDeployment` and sets the `project-info` ConfigMap rendered by the `GitHubRepo` promise as the input for the `AppDeployment` promise.

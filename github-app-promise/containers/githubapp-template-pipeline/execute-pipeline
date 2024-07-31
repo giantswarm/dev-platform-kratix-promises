@@ -2,24 +2,24 @@
 
 ### TESTING BLOCK ###
 
-function mock_kubectl() {
-	echo "IN TEST: kubectl $*"
-}
 function setup_mocks() {
-	echo "Setting up mock tools"
-	shopt -s expand_aliases
-	alias kubectl=mock_kubectl
+  echo "Setting up mock tools"
+  shopt -s expand_aliases
 }
 
 ### IMPLEMENTATION BLOCK ###
 
 if [[ -n "$TEST_RUN" ]]; then
-	setup_mocks
+  setup_mocks
 fi
 
 . ../shared/common.sh
 
-check_binaries
-load_kratix_input
+# TODO: implement; test this part - use `yq` to move the needed parts
+cp /files/* /kratix/output
+yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/github-repo.yaml
+yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/app-deployment.yaml
+yq -i '.spec = load("/kratix/input/object.yaml").spec.githubRepo.spec' /kratix/output/github-repo.yaml
+yq -i '.spec = load("/kratix/input/object.yaml").spec.appDeployment.spec' /kratix/output/app-deployment.yaml
 
 exit 0
