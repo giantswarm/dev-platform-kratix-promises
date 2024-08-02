@@ -21,5 +21,6 @@ yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix
 yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/app-deployment.yaml
 yq -i '.spec = load("/kratix/input/object.yaml").spec.githubRepo.spec' /kratix/output/github-repo.yaml
 yq -i '.spec = load("/kratix/input/object.yaml").spec.appDeployment.spec' /kratix/output/app-deployment.yaml
+yq -i '.spec.statusConfigMapReference = load("/kratix/input/object.yaml").metadata.name + "-info"' /kratix/output/app-deployment.yaml
 
 exit 0
