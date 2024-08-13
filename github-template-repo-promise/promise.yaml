@@ -99,6 +99,14 @@ spec:
           metadata:
             name: github-repo-create
           spec:
+            rbac:
+              permissions:
+                - apiGroups: [ "" ]
+                  verbs: [ "get", "list" ]
+                  resources: [ "secrets" ]
+                - apiGroups: [ "" ]
+                  verbs: [ "get", "list" ]
+                  resources: [ "configmaps" ]
             volumes:
               - name: repo
                 emptyDir: {}
@@ -106,15 +114,9 @@ spec:
               - name: github-cli-clone-template-repo-pipeline
                 image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline
                 imagePullPolicy: IfNotPresent
-                envFrom:
-                  - secretRef:
-                      name: dev-platform-gh-access
               - name: github-cli-template-values-pipeline
                 image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline
                 imagePullPolicy: IfNotPresent
-                envFrom:
-                  - secretRef:
-                      name: dev-platform-gh-access
                 volumeMount:
                   - name: repo
                     mountPath: /tmp/repo
