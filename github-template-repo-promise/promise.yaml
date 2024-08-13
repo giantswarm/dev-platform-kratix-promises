@@ -113,10 +113,10 @@ spec:
             containers:
               - name: github-cli-clone-template-repo-pipeline
                 image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
               - name: github-cli-template-values-pipeline
                 image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
                 volumeMount:
                   - name: repo
                     mountPath: /tmp/repo
