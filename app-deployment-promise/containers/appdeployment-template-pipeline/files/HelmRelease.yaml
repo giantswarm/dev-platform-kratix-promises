@@ -13,5 +13,6 @@ spec:
         name: test-helm-repo
       verify:
         provider: cosign
+  serviceAccountName: automation
   suspend: false
   timeout: "3m"
