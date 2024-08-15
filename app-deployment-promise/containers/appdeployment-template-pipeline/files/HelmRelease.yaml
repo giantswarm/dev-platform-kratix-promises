@@ -11,8 +11,10 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: test-helm-repo
-      verify:
-        provider: cosign
+        # Disable until Flux v2.2.0 cos keyless verification is not supported before that
+        # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
+#      verify:
+#        provider: cosign
   serviceAccountName: automation
   suspend: false
   timeout: "3m"
