@@ -204,3 +204,8 @@ spec:
               - name: template-values
                 image: gsoci.azurecr.io/giantswarm/appdeployment-template-pipeline
                 imagePullPolicy: Always
+            rbac:
+              permissions:
+                - apiGroups: [ "" ]
+                  verbs: [ "get", "list" ]
+                  resources: [ "configmaps" ]
