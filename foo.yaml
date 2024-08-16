@@ -1,9 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: foo
-  namespace: default
-  labels:
-    kratix.io/promise-version: v1.1.0
-data:
-  foo: "bar"
