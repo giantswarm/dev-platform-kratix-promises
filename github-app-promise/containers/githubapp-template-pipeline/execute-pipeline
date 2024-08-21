@@ -15,7 +15,6 @@ fi
 
 . ../shared/common.sh
 
-# TODO: implement; test this part - use `yq` to move the needed parts
 cp /files/* /kratix/output
 yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/github-repo.yaml
 yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/app-deployment.yaml

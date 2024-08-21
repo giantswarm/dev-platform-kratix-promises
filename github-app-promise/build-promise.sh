@@ -20,4 +20,5 @@ yq -i '.spec.githubRepo.spec = (
 )' resource-request.yaml
 yq -i '.spec.appDeployment.spec = (
   load("../app-deployment-promise/resource-request.yaml").spec
+  | del(.statusConfigMapReference) 
 )' resource-request.yaml
