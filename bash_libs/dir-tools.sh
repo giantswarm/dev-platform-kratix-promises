@@ -1,3 +1,5 @@
+#!/usr/bin/env bash
+
 function for_dirs() {
   if [[ $# != 2 ]]; then
     echo "Usage: $0 [dir] [function]"

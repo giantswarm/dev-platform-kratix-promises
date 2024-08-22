@@ -9,5 +9,5 @@ for dir in containers/*; do
   fi
   image_name="$images_registry/$images_repo/$(basename "$dir")"
   echo "Building $image_name..."
-  docker build -f "$dir/Dockerfile" -t "$image_name" containers
+  docker build --platform=linux/amd64 -f "$dir/Dockerfile" -t "$image_name" containers
 done
