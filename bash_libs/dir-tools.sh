@@ -21,7 +21,7 @@ function run_script_for_dirs() {
   fi
 
   for d in "$1"/*; do
-    if [[ ! -d "$d" || ! -x "$d/$2.sh" || "$d" == _* ]]; then
+    if [[ ! -d "$d" || ! -x "$d/$2.sh" || "$( basename "$d")" == _* ]]; then
       continue
     fi
     (
