@@ -9,6 +9,7 @@ spec:
     description: "My first kratix project"
     templateSource: giantswarm/devplatform-template-go-service
     visibility: private
+  registryInfoConfigMapRef:
+    name: github-oci-registry-info
   githubTokenSecretRef:
     name: github-create-repo-token
-  destinationNamespace: default

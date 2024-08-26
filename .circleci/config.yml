@@ -11,6 +11,9 @@ jobs:
         type: string
     steps:
       - checkout
+      - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
+      - run: "pyenv global 3 && python -m venv env && source env/bin/activate"
+      - run: "python --version && pip install pyyaml"
       - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
 
 workflows:
@@ -27,17 +30,17 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - architect/push-to-registries:
-          context: architect
-          name: build-check-if-infra-ready
-          image: giantswarm/check-if-infra-ready-pipeline
-          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
-          build-context: ./app-deployment-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
+      #      - architect/push-to-registries:
+      #          context: architect
+      #          name: build-check-if-infra-ready
+      #          image: giantswarm/check-if-infra-ready-pipeline
+      #          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
+      #          build-context: ./app-deployment-promise/containers
+      #          registries-data: |-
+      #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      #          filters:
+      #            tags:
+      #              only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-provision-infrastructure
@@ -53,7 +56,7 @@ workflows:
           promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template
-            - build-check-if-infra-ready
+            # - build-check-if-infra-ready
             - build-provision-infrastructure
           filters:
             tags:

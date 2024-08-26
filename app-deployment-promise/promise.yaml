@@ -198,14 +198,14 @@ spec:
             name: template
           spec:
             containers:
-#              - name: wait-for-infra
-#                image: gsoci.azurecr.io/giantswarm/check-if-infra-ready-pipeline
-#                imagePullPolicy: Always
+              #              - name: wait-for-infra
+              #                image: gsoci.azurecr.io/giantswarm/check-if-infra-ready-pipeline
+              #                imagePullPolicy: Always
               - name: template-values
                 image: gsoci.azurecr.io/giantswarm/appdeployment-template-pipeline
                 imagePullPolicy: Always
             rbac:
               permissions:
-                - apiGroups: [ "" ]
-                  verbs: [ "get", "list" ]
-                  resources: [ "configmaps" ]
+                - apiGroups: [""]
+                  verbs: ["get", "list"]
+                  resources: ["configmaps"]

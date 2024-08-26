@@ -40,12 +40,16 @@ function mock_git() {
   fi
   return 0
 }
+function mock_base64() {
+  echo "$1"
+}
 function setup_mocks() {
   echo "Setting up mock tools"
   shopt -s expand_aliases
   alias kubectl=mock_kubectl
   alias gh=mock_gh
   alias git=mock_git
+  alias base64=mock_base64
   alias cd=true
   alias find=true
 }
@@ -82,7 +86,7 @@ function write_repo_info() {
   write_metadata_message "Repository '$repoOwner/$repoName' ready."
 }
 
-. ../shared/common.sh
+. ../_shared/common.sh
 check_binaries
 load_kratix_input
 load_gh_token
