@@ -11,7 +11,7 @@ if [[ -n "$TEST_RUN" ]]; then
   setup_mocks
 fi
 
-. ../shared/common.sh
+. ../_shared/common.sh
 check_binaries yq
 
 if [[ ! -f $KRATIX_INPUT ]]; then

@@ -9,7 +9,7 @@ spec:
     name: blah-private
   version: ">0.1.0"
   dependsOn:
-    - test1
+    - name: test1
   kubeConfig:
     secretRef:
       name: stage-kubeconfig

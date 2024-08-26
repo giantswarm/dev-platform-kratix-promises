@@ -54,11 +54,12 @@ function load_gh_token() {
   if [[ -z "$GH_TOKEN" ]]; then
     # load github token from secret
     echo "GitHub token not set in \$GH_TOKEN environment variable. Trying to load from the configured Secret."
-    token=$(kubectl get secret "$tokenName" -n "$tokenNamespace" -o jsonpath="{.data.$TOKEN_KEY}" | base64 -d)
+    token=$(kubectl get secret "$tokenName" -n "$tokenNamespace" -o jsonpath="{.data.$TOKEN_KEY}")
     if [[ -z "$token" ]]; then
       echo "Couldn't load GitHub access token from secret \"$tokenName\" in namespace \"$tokenNamespace\" with key \"$TOKEN_KEY\""
       exit 2
     fi
+    token=$(echo "$token" | base64 -d)
     echo "GitHub access token loaded from secret \"$tokenName\" in namespace \"$tokenNamespace\""
     GH_TOKEN=$token
   else

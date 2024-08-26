@@ -1,6 +1,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1_ssa:=Ignore}
   name: my-go-project-1
   namespace: default
 spec:
@@ -12,8 +14,12 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: flux-helm-repository
-      verify:
-        provider: cosign
+        # Disable until Flux v2.2.0 cos keyless verification is not supported before that
+        # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
+  #      verify:
+  #        provider: cosign
+
+  serviceAccountName: automation
   suspend: false
   timeout: "3m"
   values:
@@ -21,7 +27,7 @@ spec:
       - name: ghcr-pull-secret
     enableDb: true
   dependsOn:
-    - test1
+    - name: test1
   kubeConfig:
     secretRef:
       name: stage-kubeconfig
