@@ -13,8 +13,8 @@ if ! command -v kubeconform &>/dev/null; then
   exit 1
 fi
 
-if ! command -v python3 &>/dev/null; then
-  echo "Python 3 not found. Please install from https://www.python.org/"
+if ! command -v python &>/dev/null; then
+  echo "Python not found. Please install from https://www.python.org/"
   exit 1
 fi
 
@@ -23,7 +23,7 @@ if [[ ! -d tmp/ ]]; then
 fi
 
 yq '.spec.api' promise.yaml >tmp/api.yaml
-python3 ../openapi2jsonschema.py tmp/api.yaml
+python ../openapi2jsonschema.py tmp/api.yaml
 mv schema.json tmp/
 
 echo "Sample resource validation: resource-request.yaml"
