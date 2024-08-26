@@ -14,8 +14,7 @@ jobs:
       - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
       - run: "pyenv versions"
       - run: "pyenv global"
-      - run: "pyenv local"
-      - run: "venv /tmp/venv && source /tmp/venv/bin/activate"
+      - run: "pipenv --python 3 && pipenv install pyyaml && pipenv shell"
       - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
 
 workflows:
