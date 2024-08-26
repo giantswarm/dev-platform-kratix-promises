@@ -27,17 +27,17 @@ workflows:
           filters:
             tags:
               only: /.*/
-      - architect/push-to-registries:
-          context: architect
-          name: build-check-if-infra-ready
-          image: giantswarm/check-if-infra-ready-pipeline
-          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
-          build-context: ./app-deployment-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
+      #      - architect/push-to-registries:
+      #          context: architect
+      #          name: build-check-if-infra-ready
+      #          image: giantswarm/check-if-infra-ready-pipeline
+      #          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
+      #          build-context: ./app-deployment-promise/containers
+      #          registries-data: |-
+      #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      #          filters:
+      #            tags:
+      #              only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-provision-infrastructure
@@ -53,7 +53,7 @@ workflows:
           promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template
-            - build-check-if-infra-ready
+            # - build-check-if-infra-ready
             - build-provision-infrastructure
           filters:
             tags:
