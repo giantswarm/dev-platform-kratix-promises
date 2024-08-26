@@ -12,87 +12,83 @@ jobs:
     steps:
       - checkout
       - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
-      - run: "pyenv versions"
-      - run: "pyenv global"
-      - run: "pyenv global 3 && python -m venv env && source env/bin/activate"
-      - run: "python --version"
-      - run: "pip install pyyaml"
+      - run: "pyenv global 3 && python -m venv env && source env/bin/activate && pip install pyyaml"
       - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
 
 workflows:
-  #build-app-deployment-promise:
-  #  jobs:
-  #    - architect/push-to-registries:
-  #        context: architect
-  #        name: build-appdeployment-template
-  #        image: giantswarm/appdeployment-template-pipeline
-  #        dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
-  #        build-context: ./app-deployment-promise/containers
-  #        registries-data: |-
-  #          public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-  #        filters:
-  #          tags:
-  #            only: /.*/
-  #    #      - architect/push-to-registries:
-  #    #          context: architect
-  #    #          name: build-check-if-infra-ready
-  #    #          image: giantswarm/check-if-infra-ready-pipeline
-  #    #          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
-  #    #          build-context: ./app-deployment-promise/containers
-  #    #          registries-data: |-
-  #    #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-  #    #          filters:
-  #    #            tags:
-  #    #              only: /.*/
-  #    - architect/push-to-registries:
-  #        context: architect
-  #        name: build-provision-infrastructure
-  #        image: giantswarm/provision-infrastructure-pipeline
-  #        dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
-  #        build-context: ./app-deployment-promise/containers
-  #        registries-data: |-
-  #          public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-  #        filters:
-  #          tags:
-  #            only: /.*/
-  #    - execute-tests:
-  #        promise-dir: "app-deployment-promise"
-  #        requires:
-  #          - build-appdeployment-template
-  #          # - build-check-if-infra-ready
-  #          - build-provision-infrastructure
-  #        filters:
-  #          tags:
-  #            only: /.*/
-  build-github-template-repo-promise:
+  build-app-deployment-promise:
     jobs:
-      #- architect/push-to-registries:
-      #    context: architect
-      #    name: build-github-cli-clone-template-repo
-      #    image: giantswarm/github-cli-clone-template-repo-promise
-      #    dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-pipeline/Dockerfile
-      #    build-context: ./github-template-repo-promise/containers
-      #    registries-data: |-
-      #      public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-      #    filters:
-      #      tags:
-      #        only: /.*/
-      #- architect/push-to-registries:
-      #    context: architect
-      #    name: build-github-cli-template-values
-      #    image: giantswarm/github-cli-template-values-promise
-      #    dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
-      #    build-context: ./github-template-repo-promise/containers
-      #    registries-data: |-
-      #      public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-      #    filters:
-      #      tags:
-      #        only: /.*/
+      - architect/push-to-registries:
+          context: architect
+          name: build-appdeployment-template
+          image: giantswarm/appdeployment-template-pipeline
+          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
+          build-context: ./app-deployment-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
+      #      - architect/push-to-registries:
+      #          context: architect
+      #          name: build-check-if-infra-ready
+      #          image: giantswarm/check-if-infra-ready-pipeline
+      #          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
+      #          build-context: ./app-deployment-promise/containers
+      #          registries-data: |-
+      #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+      #          filters:
+      #            tags:
+      #              only: /.*/
+      - architect/push-to-registries:
+          context: architect
+          name: build-provision-infrastructure
+          image: giantswarm/provision-infrastructure-pipeline
+          dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
+          build-context: ./app-deployment-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
       - execute-tests:
           promise-dir: "app-deployment-promise"
-          # requires:
-          # - build-github-cli-clone-template-repo
-          # - build-github-cli-template-values
+          requires:
+            - build-appdeployment-template
+            # - build-check-if-infra-ready
+            - build-provision-infrastructure
+          filters:
+            tags:
+              only: /.*/
+  build-github-template-repo-promise:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-clone-template-repo
+          image: giantswarm/github-cli-clone-template-repo-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-pipeline/Dockerfile
+          build-context: ./github-template-repo-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-template-values
+          image: giantswarm/github-cli-template-values-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
+          build-context: ./github-template-repo-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
+      - execute-tests:
+          promise-dir: "app-deployment-promise"
+          requires:
+            - build-github-cli-clone-template-repo
+            - build-github-cli-template-values
           filters:
             tags:
               only: /.*/
