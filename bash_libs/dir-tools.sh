@@ -17,20 +17,27 @@ function for_dirs() {
   done
 }
 
+function run_script_in_dir() {
+  if [[ $# != 2 ]]; then
+    echo "Usage: $0 [dir]"
+    exit 1
+  fi
+  if [[ ! -x "$1/$script.sh" ]]; then
+    return
+  fi
+  (
+    echo "$script in $1"
+    cd "$1" || exit
+    ./"$script".sh
+  )
+}
+
 function run_script_for_dirs() {
   if [[ $# != 2 ]]; then
     echo "Usage: $0 [dir] [script name]"
     exit 1
   fi
 
-  for d in "$1"/*; do
-    if [[ ! -d "$d" || ! -x "$d/$2.sh" || "$( basename "$d")" == _* ]]; then
-      continue
-    fi
-    (
-      echo "$2 all in $d"
-      cd "$d" || exit
-      ./"$2".sh
-    )
-  done
+  script="$2"
+  for_dirs "$1" run_script_in_dir
 }
