@@ -21,11 +21,15 @@ function mock_gh() {
     return 0
   fi
 }
+function mock_base64() {
+  echo "$1"
+}
 function setup_mocks() {
   echo "Setting up mock tools"
   shopt -s expand_aliases
   alias kubectl=mock_kubectl
   alias gh=mock_gh
+  alias base64=mock_base64
 }
 
 ### IMPLEMENTATION BLOCK ###
