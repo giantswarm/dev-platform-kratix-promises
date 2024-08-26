@@ -11,7 +11,7 @@ jobs:
         type: string
     steps:
       - checkout
-      - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | tar xzf - && cd -"
+      - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
       - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
 
 workflows:
