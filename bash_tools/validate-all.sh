@@ -8,12 +8,12 @@ if [[ ! -f promise.yaml ]]; then
   exit 1
 fi
 
-if [[ ! -x kubeconform ]]; then
+if ! command -v kubeconform &>/dev/null; then
   echo "Kubeconform not found. Please install from https://github.com/yannh/kubeconform"
   exit 1
 fi
 
-if [[ ! -x python ]]; then
+if ! command -v python &>/dev/null; then
   echo "Python not found. Please install from https://www.python.org/"
   exit 1
 fi
@@ -26,14 +26,16 @@ yq '.spec.api' promise.yaml >tmp/api.yaml
 python ../openapi2jsonschema.py tmp/api.yaml
 mv schema.json tmp/
 
-kubeconform -schema-location tmp/schema.json -summary resource-request.yaml
+echo "Sample resource validation: resource-request.yaml"
+kubeconform -schema-location tmp/schema.json resource-request.yaml
 
 function validate() {
-
+  echo "Test input validation: $1/input/object.yaml"
+  kubeconform -schema-location tmp/schema.json "$1/input/object.yaml"
 }
 
 function for_containers() {
-  for_dirs . validate
+  for_dirs "$1/tests" validate
 }
 
 for_dirs containers for_containers

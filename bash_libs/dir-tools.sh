@@ -11,7 +11,7 @@ function for_dirs() {
       continue
     fi
     (
-      "$1" "$dir"
+      "$2" "$dir"
     )
   done
 }
