@@ -66,6 +66,7 @@ function test_image() {
   cd ../..
 }
 
+set -e
 ./build-all.sh
 ./validate-all.sh
 for_dirs "containers" test_image
