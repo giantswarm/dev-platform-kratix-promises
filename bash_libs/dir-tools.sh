@@ -7,6 +7,7 @@ function for_dirs() {
   fi
 
   for dir in "$1"/*; do
+    d=$(basename "$dir")
     if [[ ! -d "$dir" || "$d" == _* ]]; then
       continue
     fi

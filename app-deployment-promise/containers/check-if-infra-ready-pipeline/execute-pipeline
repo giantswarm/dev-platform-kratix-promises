@@ -32,8 +32,6 @@ fi
 echo "Waiting for infrastructure to be provisioned" | tee "$KRATIX_META"
 #TODO: Replace with actual implementation
 
-sleep 60
-
 #while ! kubectl -n "$OBJ_NAMESPACE" get cm "$OBJ_NAME" &>/dev/null; do
 #  sleep 5
 #done
