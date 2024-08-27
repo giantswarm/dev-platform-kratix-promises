@@ -1,5 +1,5 @@
 apiVersion: promise.platform.giantswarm.io/v1beta1
-kind: GitHubApp
+kind: githubapp
 metadata:
   name: my-go-project-1
 spec:

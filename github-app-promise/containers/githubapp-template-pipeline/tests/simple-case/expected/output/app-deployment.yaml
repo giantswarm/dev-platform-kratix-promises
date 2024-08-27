@@ -2,6 +2,7 @@ apiVersion: promise.platform.giantswarm.io/v1beta1
 kind: appdeployment
 metadata:
   name: my-go-project-1
+  namespace: default
 spec:
   interval: 1m
   version: ">=0.1.0"
