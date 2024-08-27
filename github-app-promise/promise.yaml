@@ -264,4 +264,4 @@ spec:
             containers:
               - name: template-requests
                 image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
-                imagePullPolicy: IfNotPresent
+                imagePullPolicy: Always
