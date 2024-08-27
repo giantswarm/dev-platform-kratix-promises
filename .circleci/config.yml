@@ -98,7 +98,7 @@ workflows:
       - architect/push-to-registries:
           context: architect
           name: build-githubapp-template-repo
-          image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
+          image: giantswarm/githubapp-template-pipeline
           dockerfile: ./github-app-promise/containers/githubapp-template-pipeline/Dockerfile
           build-context: ./github-app-promise/containers
           registries-data: |-
