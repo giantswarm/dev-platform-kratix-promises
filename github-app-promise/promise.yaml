@@ -11,7 +11,7 @@ spec:
   requiredPromises:
     - name: githubrepo
       version: v0.0.1
-    - name: appdeployment
+    - name: appDeployment
       version: v0.0.1
   api:
     apiVersion: apiextensions.k8s.io/v1
@@ -24,7 +24,7 @@ spec:
       names:
         plural: githubapps
         singular: githubapp
-        kind: githubapp
+        kind: GithubApp
       versions:
         - name: v1beta1
           served: true
@@ -263,5 +263,5 @@ spec:
           spec:
             containers:
               - name: template-requests
-                image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline:0.1.0-0e81ec18c47d5d8b56b5213ff3282cafbe3be2fb
-                imagePullPolicy: Always
+                image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
+                imagePullPolicy: IfNotPresent
