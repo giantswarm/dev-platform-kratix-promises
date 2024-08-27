@@ -93,3 +93,23 @@ workflows:
           filters:
             tags:
               only: /.*/
+  build-github-app-promise:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-githubapp-template-repo
+          image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
+          dockerfile: ./github-app-promise/containers/githubapp-template-pipeline/Dockerfile
+          build-context: ./github-app-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: /.*/
+      - execute-tests:
+          promise-dir: "github-app-promise"
+          requires:
+            - build-githubapp-template-repo
+          filters:
+            tags:
+              only: /.*/
