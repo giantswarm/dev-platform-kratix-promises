@@ -11,4 +11,5 @@ spec:
       name: stage-kubeconfig
   suspend: false
   timeout: 3m
-  statusConfigMapReference: my-go-project-1-info
+  statusConfigMapReference:
+    name: my-go-project-1-info
