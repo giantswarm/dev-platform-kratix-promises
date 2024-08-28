@@ -1,0 +1,5 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: appdeployment
+metadata:
+  name: OVERWRITE
+spec: {}

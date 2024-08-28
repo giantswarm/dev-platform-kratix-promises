@@ -1,5 +1,7 @@
 #!/bin/bash -e
 
+readonly MAX_STATUS_CM_WAIT_TIME_S=120
+
 ### TESTING BLOCK ###
 function mock_kubectl() {
   if [[ "$3" == blah-* ]]; then
@@ -44,11 +46,21 @@ if [[ "$OBJ_NAMESPACE" == "null" ]]; then
 fi
 STATUS_CONFIGMAP_NAME=$(yq '.spec.statusConfigMapReference.name' "$KRATIX_INPUT")
 
+cm_wait_time=0
 STATUS_CONFIGMAP_PATH=/tmp/status-configmap.yaml
-if ! kubectl get configmap "$STATUS_CONFIGMAP_NAME" -n "$OBJ_NAMESPACE" -o yaml >"$STATUS_CONFIGMAP_PATH"; then
-  write_metadata_message "Can't load $OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME config map."
-  exit 2
-fi
+while true; do
+  if kubectl get configmap "$STATUS_CONFIGMAP_NAME" -n "$OBJ_NAMESPACE" -o yaml >"$STATUS_CONFIGMAP_PATH"; then
+    break
+  fi
+  write_metadata_message "Waiting for the $OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME config map to be created..."
+  sleep 1
+  cm_wait_time=$((cm_wait_time + 1))
+  if [[ $cm_wait_time -gt $MAX_STATUS_CM_WAIT_TIME_S ]]; then
+    write_metadata_message "Can't load $OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME config map."
+    exit 2
+  fi
+done
+write_metadata_message "$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME config map loaded."
 
 KEY=".data.repoName"
 GITHUB_REPO_NAME=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")

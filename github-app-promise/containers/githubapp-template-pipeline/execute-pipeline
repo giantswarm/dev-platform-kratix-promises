@@ -1,0 +1,33 @@
+#!/bin/bash -e
+
+### TESTING BLOCK ###
+
+function setup_mocks() {
+  echo "Setting up mock tools"
+  shopt -s expand_aliases
+}
+
+### IMPLEMENTATION BLOCK ###
+
+if [[ -n "$TEST_RUN" ]]; then
+  setup_mocks
+fi
+
+. ../_shared/common.sh
+
+OBJ_NAMESPACE=$(yq '.metadata.namespace' "/kratix/input/object.yaml")
+if [[ "$OBJ_NAMESPACE" == "null" ]]; then
+  OBJ_NAMESPACE="default"
+fi
+export OBJ_NAMESPACE
+
+cp /files/* /kratix/output
+yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/github-repo.yaml
+yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/app-deployment.yaml
+yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/github-repo.yaml
+yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/app-deployment.yaml
+yq -i '.spec = load("/kratix/input/object.yaml").spec.githubRepo.spec' /kratix/output/github-repo.yaml
+yq -i '.spec = load("/kratix/input/object.yaml").spec.appDeployment.spec' /kratix/output/app-deployment.yaml
+yq -i '.spec.statusConfigMapReference.name = load("/kratix/input/object.yaml").metadata.name + "-info"' /kratix/output/app-deployment.yaml
+
+exit 0
