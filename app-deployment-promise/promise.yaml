@@ -33,6 +33,7 @@ spec:
                 spec:
                   type: object
                   required:
+                    - database
                     - interval
                     - statusConfigMapReference
                   description: AppDeploymentSpec defines the desired state of a Helm release and Logical Database.
@@ -42,11 +43,35 @@ spec:
                       type: object
                       required:
                         - engine
+                        - eso
                         - providerConfigRef
                       properties:
                         engine:
                           description: Database engine of the referenced database cluster.
                           type: string
+                        eso:
+                          description: ESO related configuration.
+                          type: object
+                          required:
+                            - ssaField
+                          properties:
+                            ssaField:
+                              description: Field name that indicates the database cluster being ready in the Flux SSA secret.
+                              type: string
+                            tenantCluster:
+                              description: Tenant cluster related configuration.
+                              type: object
+                              properties:
+                                apiServerEndpoint:
+                                  description: URL of the tenant cluster API servers.
+                                  type: string
+                                clusterName:
+                                  description: Name of the tenant workload cluster.
+                                  type: string
+                                enabled:
+                                  description: Switch for the tenant cluster configuration.
+                                  type: boolean
+                                  default: false
                         providerConfigRef:
                           description: Database provider config reference information.
                           type: object
