@@ -53,9 +53,9 @@ spec:
                           description: ESO related configuration.
                           type: object
                           required:
-                            - ssaField
+                            - clusterSsaField
                           properties:
-                            ssaField:
+                            clusterSsaField:
                               description: Field name that indicates the database cluster being ready in the Flux SSA secret.
                               type: string
                             tenantCluster:
