@@ -35,8 +35,27 @@ spec:
                   required:
                     - interval
                     - statusConfigMapReference
-                  description: AppDeploymentSpec defines the desired state of a Helm release.
+                  description: AppDeploymentSpec defines the desired state of a Helm release and Logical Database.
                   properties:
+                    database:
+                      description: Logical database related information.
+                      type: object
+                      required:
+                        - engine
+                        - providerConfigRef
+                      properties:
+                        engine:
+                          description: Database engine of the referenced database cluster.
+                          type: string
+                        providerConfigRef:
+                          description: Database provider config reference information.
+                          type: object
+                          required:
+                            - name
+                          properties:
+                            name:
+                              description: Name of the provider config reference object for the given database engine.
+                              type: string
                     dependsOn:
                       description: |-
                         DependsOn may contain a meta.NamespacedObjectReference slice with
