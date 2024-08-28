@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: <objName>-magic
-  namespace: <objNamespace>
-data:
-  crossplane: magic

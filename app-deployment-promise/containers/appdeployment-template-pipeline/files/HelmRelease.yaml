@@ -4,6 +4,7 @@ metadata:
   annotations:
     kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
   name: my-go-project-1
+  namespace: default
 spec:
   interval: 1m
   chart:

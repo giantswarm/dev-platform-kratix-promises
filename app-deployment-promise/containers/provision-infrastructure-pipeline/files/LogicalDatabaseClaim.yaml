@@ -1,0 +1,21 @@
+apiVersion: xdatabase.crossplane.giantswarm.io/v1alpha1
+kind: LogicalDatabaseClaim
+metadata:
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
+  name: my-go-project-1
+  namespace: default
+spec:
+  eso:
+    enabled: true
+    fluxSSASecretName: fluxssa
+    kubernetesSecretStore: default
+    tenantCluster:
+      apiServerEndpoint: rdsapp-apiserver-1047606037.eu-west-2.elb.amazonaws.com
+      clusterName: rdsapp
+      enabled: true
+  engine: aurora-postgresql
+  kubernetesProviderConfig:
+    name: default
+  providerConfigRef:
+    name: go-service-1-postgresql-provider-config

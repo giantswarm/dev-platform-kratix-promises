@@ -24,13 +24,42 @@ if [[ "$OBJ_NAMESPACE" == "null" ]]; then
   OBJ_NAMESPACE="default"
 fi
 
+DB_ENGINE=$(yq '.spec.database.engine' "$KRATIX_INPUT")
+DB_PROVIDER_CONFIG_REF_NAME=$(yq '.spec.database.providerConfigRef.name' "$KRATIX_INPUT")
+
+DB_ESO_CLUSTER_SSA_FIELD=$(yq '.spec.database.eso.clusterSsaField' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_API_ENDPOINT=$(yq '.spec.database.eso.tenantCluster.apiServerEndpoint' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_NAME=$(yq '.spec.database.eso.tenantCluster.clusterName' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_ENABLED=$(yq '.spec.database.eso.tenantCluster.enabled' "$KRATIX_INPUT")
+
 cp /files/*.yaml /kratix/output/
 
-#TODO: Replace with actual implementation
 export OBJ_NAME
 export OBJ_NAMESPACE
+
 yq -i '.metadata.name = strenv(OBJ_NAME)' /kratix/output/*.yaml
 yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/*.yaml
+
+export DB_ENGINE
+export DB_PROVIDER_CONFIG_REF_NAME
+export DB_ESO_CLUSTER_SSA_FIELD
+export DB_ESO_CLUSTER_SSA_FIELD
+export DB_ESO_TENANT_CLUSTER_API_ENDPOINT
+export DB_ESO_TENANT_CLUSTER_NAME
+export DB_ESO_TENANT_CLUSTER_ENABLED
+
+LOGICAL_DATABASE_PATH="/kratix/output/LogicalDatabaseClaim.yaml"
+
+yq -i '.spec.engine = strenv(DB_ENGINE)' "${LOGICAL_DATABASE_PATH}"
+yq -i '.spec.providerConfigRef.name = strenv(DB_PROVIDER_CONFIG_REF_NAME)' "${LOGICAL_DATABASE_PATH}"
+# shellcheck disable=SC2016
+yq -i '.metadata.annotations."kustomize.toolkit.fluxcd.io/ssa" = "${" + strenv(DB_ESO_CLUSTER_SSA_FIELD) + ":=Ignore}"' "${LOGICAL_DATABASE_PATH}"
+
+if [[ "${DB_ESO_TENANT_CLUSTER_ENABLED}" == "true" ]]; then
+  yq -i '.spec.eso.tenantCluster.apiServerEndpoint = strenv(DB_ESO_TENANT_CLUSTER_API_ENDPOINT)' "${LOGICAL_DATABASE_PATH}"
+  yq -i '.spec.eso.tenantCluster.clusterName = strenv(DB_ESO_TENANT_CLUSTER_NAME)' "${LOGICAL_DATABASE_PATH}"
+  yq -i '.spec.eso.tenantCluster.enabled = env(DB_ESO_TENANT_CLUSTER_ENABLED)' "${LOGICAL_DATABASE_PATH}"
+fi
 
 write_metadata_message "Infrastructure requested with Crossplane using CROSSPLANE-MAGIC object '$OBJ_NAMESPACE/$OBJ_NAME'"
 
