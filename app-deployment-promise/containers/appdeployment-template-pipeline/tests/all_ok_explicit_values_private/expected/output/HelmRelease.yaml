@@ -2,7 +2,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   annotations:
-    kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1_ssa:=Ignore}
+    kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1:=Ignore}
   name: my-go-project-1
   namespace: default
 spec:

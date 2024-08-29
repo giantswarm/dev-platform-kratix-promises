@@ -116,7 +116,7 @@ export OBJ_NAME_SSA_SANITIZED
 yq -i '.metadata.name = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
 yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' "$HELM_RELEASE_PATH"
 # shellcheck disable=SC2016
-yq -i '.metadata.annotations."kustomize.toolkit.fluxcd.io/ssa" = "${" + strenv(OBJ_NAME_SSA_SANITIZED) + "_ssa:=Ignore}"' "$HELM_RELEASE_PATH"
+yq -i '.metadata.annotations."kustomize.toolkit.fluxcd.io/ssa" = "${" + strenv(OBJ_NAME_SSA_SANITIZED) + ":=Ignore}"' "$HELM_RELEASE_PATH"
 yq -i '.spec.chart.spec.chart = strenv(GITHUB_REPO_NAME)' "$HELM_RELEASE_PATH"
 yq -i '.spec.chart.spec.sourceRef.name = strenv(HELM_REPO_NAME)' "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.interval' '.spec.interval = strenv(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
