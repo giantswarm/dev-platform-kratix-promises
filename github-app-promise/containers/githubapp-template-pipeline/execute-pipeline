@@ -15,19 +15,48 @@ fi
 
 . ../_shared/common.sh
 
-OBJ_NAMESPACE=$(yq '.metadata.namespace' "/kratix/input/object.yaml")
+KRATIX_INPUT="/kratix/input/object.yaml"
+
+OBJ_NAMESPACE=$(yq '.metadata.namespace' "${KRATIX_INPUT}")
 if [[ "$OBJ_NAMESPACE" == "null" ]]; then
   OBJ_NAMESPACE="default"
 fi
 export OBJ_NAMESPACE
 
+APP_DEPLOYMENT_PATH="/kratix/output/app-deployment.yaml"
+
 cp /files/* /kratix/output
 yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/github-repo.yaml
-yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' /kratix/output/app-deployment.yaml
+yq -i '.metadata.name = load("/kratix/input/object.yaml").metadata.name' "${APP_DEPLOYMENT_PATH}"
 yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/github-repo.yaml
-yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' /kratix/output/app-deployment.yaml
+yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' "${APP_DEPLOYMENT_PATH}"
 yq -i '.spec = load("/kratix/input/object.yaml").spec.githubRepo.spec' /kratix/output/github-repo.yaml
-yq -i '.spec = load("/kratix/input/object.yaml").spec.appDeployment.spec' /kratix/output/app-deployment.yaml
-yq -i '.spec.statusConfigMapReference.name = load("/kratix/input/object.yaml").metadata.name + "-info"' /kratix/output/app-deployment.yaml
+yq -i '.spec = load("/kratix/input/object.yaml").spec.appDeployment.spec' "${APP_DEPLOYMENT_PATH}"
+yq -i '.spec.statusConfigMapReference.name = load("/kratix/input/object.yaml").metadata.name + "-info"' "${APP_DEPLOYMENT_PATH}"
+
+DB_ENGINE=$(yq '.spec.appDeployment.spec.database.engine' "$KRATIX_INPUT")
+DB_PROVIDER_CONFIG_REF_NAME=$(yq '.spec.appDeployment.spec.database.providerConfigRef.name' "$KRATIX_INPUT")
+
+DB_ESO_CLUSTER_SSA_FIELD=$(yq '.spec.appDeployment.spec.database.eso.clusterSsaField' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_API_ENDPOINT=$(yq '.spec.appDeployment.spec.database.eso.tenantCluster.apiServerEndpoint' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_NAME=$(yq '.spec.appDeployment.spec.database.eso.tenantCluster.clusterName' "$KRATIX_INPUT")
+DB_ESO_TENANT_CLUSTER_ENABLED=$(yq '.spec.appDeployment.spec.database.eso.tenantCluster.enabled' "$KRATIX_INPUT")
+
+export DB_ENGINE
+export DB_PROVIDER_CONFIG_REF_NAME
+export DB_ESO_CLUSTER_SSA_FIELD
+export DB_ESO_TENANT_CLUSTER_API_ENDPOINT
+export DB_ESO_TENANT_CLUSTER_NAME
+export DB_ESO_TENANT_CLUSTER_ENABLED
+
+yq -i '.spec.database.engine = strenv(DB_ENGINE)' "${APP_DEPLOYMENT_PATH}"
+yq -i '.spec.database.providerConfigRef.name = strenv(DB_PROVIDER_CONFIG_REF_NAME)' "${APP_DEPLOYMENT_PATH}"
+yq -i '.spec.database.eso.clusterSsaField = strenv(DB_ESO_CLUSTER_SSA_FIELD)' "${APP_DEPLOYMENT_PATH}"
+
+if [[ "${DB_ESO_TENANT_CLUSTER_ENABLED}" == "true" ]]; then
+  yq -i '.spec.database.eso.tenantCluster.apiServerEndpoint = strenv(DB_ESO_TENANT_CLUSTER_API_ENDPOINT)' "${APP_DEPLOYMENT_PATH}"
+  yq -i '.spec.database.eso.tenantCluster.clusterName = strenv(DB_ESO_TENANT_CLUSTER_NAME)' "${APP_DEPLOYMENT_PATH}"
+  yq -i '.spec.database.eso.tenantCluster.enabled = env(DB_ESO_TENANT_CLUSTER_ENABLED)' "${APP_DEPLOYMENT_PATH}"
+fi
 
 exit 0
