@@ -12,6 +12,9 @@ spec:
   kubeConfig:
     secretRef:
       name: stage-kubeconfig
+  releaseName: my-go-project-1
+  targetNamespace: default
+  storageNamespace: default
   suspend: false
   timeout: 3m
   values:

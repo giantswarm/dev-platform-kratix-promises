@@ -128,4 +128,9 @@ yq_copy_if_exists '.spec.timeout' '.spec.timeout = strenv(VAR)' "$KRATIX_INPUT" 
 yq_copy_if_exists '.spec.values' '.spec.values *= env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.valuesFrom' '.spec.valuesFrom = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 
+yq_copy_if_exists '.spec.serviceAccountName' '.spec.serviceAccountName = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.releaseName' '.spec.releaseName = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.storageNamespace' '.spec.storageNamespace = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq_copy_if_exists '.spec.targetNamespace' '.spec.targetNamespace = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+
 write_metadata_message "HelmRelease object '$OBJ_NAMESPACE/$OBJ_NAME' successfully created"

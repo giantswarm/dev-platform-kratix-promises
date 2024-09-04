@@ -59,4 +59,30 @@ if [[ "${DB_ESO_TENANT_CLUSTER_ENABLED}" == "true" ]]; then
   yq -i '.spec.database.eso.tenantCluster.enabled = env(DB_ESO_TENANT_CLUSTER_ENABLED)' "${APP_DEPLOYMENT_PATH}"
 fi
 
+HR_SERVICE_ACCOUNT=$(yq '.spec.appDeployment.spec.serviceAccountName' "$KRATIX_INPUT")
+HR_RELEASE_NAME=$(yq '.spec.appDeployment.spec.releaseName' "$KRATIX_INPUT")
+HR_STORAGE_NAMESPACE=$(yq '.spec.appDeployment.spec.storageNamespace' "$KRATIX_INPUT")
+HR_TARGET_NAMESPACE=$(yq '.spec.appDeployment.spec.targetNamespace' "$KRATIX_INPUT")
+
+export HR_SERVICE_ACCOUNT
+export HR_RELEASE_NAME
+export HR_STORAGE_NAMESPACE
+export HR_TARGET_NAMESPACE
+
+if [[ "${HR_SERVICE_ACCOUNT}" != "null" ]]; then
+  yq -i '.spec.serviceAccountName = strenv(HR_SERVICE_ACCOUNT)' "${APP_DEPLOYMENT_PATH}"
+fi
+
+if [[ "${HR_RELEASE_NAME}" != "null" ]]; then
+  yq -i '.spec.releaseName = strenv(HR_RELEASE_NAME)' "${APP_DEPLOYMENT_PATH}"
+fi
+
+if [[ "${HR_STORAGE_NAMESPACE}" != "null" ]]; then
+  yq -i '.spec.storageNamespace = strenv(HR_STORAGE_NAMESPACE)' "${APP_DEPLOYMENT_PATH}"
+fi
+
+if [[ "${HR_TARGET_NAMESPACE}" != "null" ]]; then
+  yq -i '.spec.targetNamespace = strenv(HR_TARGET_NAMESPACE)' "${APP_DEPLOYMENT_PATH}"
+fi
+
 exit 0

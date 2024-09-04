@@ -229,6 +229,18 @@ spec:
                               required:
                                 - secretRef
                               type: object
+                            serviceAccountName:
+                              description: "The name of the Kubernetes service account to impersonate when reconciling this HelmRelease."
+                              type: string
+                            releaseName:
+                              description: "ReleaseName used for the Helm release."
+                              type: string
+                            storageNamespace:
+                              description: "TargetNamespace to target when performing operations for the HelmRelease. Defaults to the namespace of the HelmRelease."
+                              type: string
+                            targetNamespace:
+                              description: "StorageNamespace used for the Helm storage. Defaults to the namespace of the HelmRelease."
+                              type: string
                             suspend:
                               description: |-
                                 Suspend tells the controller to suspend reconciliation for this AppDeployment,
