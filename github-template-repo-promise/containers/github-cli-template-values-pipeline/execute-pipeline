@@ -136,7 +136,7 @@ for subst in \
   "s/\[\[registry-username\]\]/${registryUsername}/g" \
   "s/\[\[registry-cicd-secret-ref\]\]/${registryCicdSecretRef}/g" \
   "s/\[\[repo-owner\]\]/${repoOwner}/g"; do
-  sed -Ei "$subst" "README.md" "go.mod" ".goreleaser.yaml" ".github/workflows/release.yaml" "Dockerfile"
+  sed -Ei "$subst" "README.md" "go.mod" ".goreleaser.yaml" ".github/workflows/release.yaml" "Dockerfile" "catalog-info.yaml"
   find helm/ -type f -regextype egrep -iregex ".*\.(tpl|txt|md|yaml|gotmpl)" -exec sed -Ei "$subst" {} \+
 done
 set -e
