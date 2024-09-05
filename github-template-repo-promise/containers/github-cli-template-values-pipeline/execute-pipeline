@@ -127,6 +127,8 @@ registryUsername=$(echo "$regInfoJson" | jq -r '.registry_username')
 registryDomain=$(echo "$regInfoJson" | jq -r '.registry_domain')
 
 for subst in \
+  "s/\[\[backstage-entity-owner\]\]/${backstageEntityOwner}/g" \
+  "s/\[\[backstage-entity-lifecycle\]\]/${backstageEntityLifecycle}/g" \
   "s/\[\[image-name\]\]/${repoName,,}/g" \
   "s/\[\[project-name\]\]/${repoName,,}/g" \
   "s/\[\[registry-domain\]\]/${registryDomain,,}/g" \
