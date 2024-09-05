@@ -30,7 +30,7 @@ function load_kratix_input() {
   if [[ "$regInfoCmNamespace" == "null" ]]; then
     regInfoCmNamespace="$objNamespace"
   fi
-  backstageEntityOwner=$(yq '.spec.backstageCatalogEntity.owner' /kratix/input/object.yaml)
+  backstageEntityOwner="$(yq '.spec.backstageCatalogEntity.owner' /kratix/input/object.yaml)"
   backstageEntityLifecycle=$(yq '.spec.backstageCatalogEntity.lifecycle' /kratix/input/object.yaml)
 
   # explicit export after assignemnt to avoid loosing the exit code
