@@ -54,9 +54,23 @@ spec:
                         spec:
                           type: object
                           required:
+                            - backstageCatalogEntity
                             - repository
                             - registryInfoConfigMapRef
                           properties:
+                            backstageCatalogEntity:
+                              description: Backstage catalog entity configuration
+                              required:
+                                - owner
+                                - lifecycle
+                              type: object
+                              properties:
+                                owner:
+                                  description: A reference of the owning Backstage entity.
+                                  type: string
+                                lifecycle:
+                                  description: A lifecycle of the Backstage entity.
+                                  type: string
                             repository:
                               description: New repository configuration.
                               required:
