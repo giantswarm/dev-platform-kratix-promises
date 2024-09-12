@@ -133,4 +133,12 @@ yq_copy_if_exists '.spec.releaseName' '.spec.releaseName = env(VAR)' "$KRATIX_IN
 yq_copy_if_exists '.spec.storageNamespace' '.spec.storageNamespace = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.targetNamespace' '.spec.targetNamespace = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 
+DB_SECRET_REF="$(yq '.spec.database.connectionSecretRef.name' "$KRATIX_INPUT")"
+export DB_SECRET_REF
+
+yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.address") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
+yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.port") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
+yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.username") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
+yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.password") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
+
 write_metadata_message "HelmRelease object '$OBJ_NAMESPACE/$OBJ_NAME' successfully created"

@@ -185,6 +185,13 @@ spec:
                                     name:
                                       description: Name of the provider config reference object for the given database engine.
                                       type: string
+                                connectionSecretRef:
+                                  description: "Reference to the secret storing the database connection details under the fields: endpoint, port, username, password."
+                                  type: object
+                                  properties:
+                                    name:
+                                      description: Name of the secret. Must be in the same namespace as the resource request.
+                                      type: string
                             dependsOn:
                               description: |-
                                 DependsOn may contain a meta.NamespacedObjectReference slice with

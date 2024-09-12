@@ -16,9 +16,27 @@ spec:
         name: test-helm-repo
         # Disable until Flux v2.2.0 cos keyless verification is not supported before that
         # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
-#      verify:
-#        provider: cosign
+  #      verify:
+  #        provider: cosign
   # This should not be set when kubeconfig is set as well!
-#  serviceAccountName: automation
+  #  serviceAccountName: automation
+
   suspend: false
   timeout: "3m"
+  valuesFrom:
+    - kind: Secret
+      name: demotech-rcc-rds-master
+      valuesKey: endpoint
+      targetPath: database.address
+    - kind: Secret
+      name: demotech-rcc-rds-master
+      valuesKey: username
+      targetPath: database.username
+    - kind: Secret
+      name: demotech-rcc-rds-master
+      valuesKey: password
+      targetPath: database.password
+    - kind: Secret
+      name: demotech-rcc-rds-master
+      valuesKey: port
+      targetPath: database.port
