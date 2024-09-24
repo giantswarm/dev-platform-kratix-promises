@@ -9,6 +9,7 @@ spec:
       backstageCatalogEntity:
         owner: group:default/team-platform
         lifecycle: experimental
+        grafanaDashboard: cdyhcdr5hge0wa/demotech-web-application-vitals
       repository:
         name: my-go-project-1
         owner: DemoTechInc

@@ -47,6 +47,9 @@ spec:
                         lifecycle:
                           description: A lifecycle of the Backstage entity.
                           type: string
+                        grafanaDashboard:
+                          description: Grafana dashboard for the Backstage entity deployments overview.
+                          type: string
                     repository:
                       description: New repository configuration.
                       required:

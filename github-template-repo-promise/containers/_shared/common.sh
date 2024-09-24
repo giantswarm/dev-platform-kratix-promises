@@ -31,7 +31,8 @@ function load_kratix_input() {
     regInfoCmNamespace="$objNamespace"
   fi
   backstageEntityOwner="$(yq '.spec.backstageCatalogEntity.owner' /kratix/input/object.yaml)"
-  backstageEntityLifecycle=$(yq '.spec.backstageCatalogEntity.lifecycle' /kratix/input/object.yaml)
+  backstageEntityLifecycle="$(yq '.spec.backstageCatalogEntity.lifecycle' /kratix/input/object.yaml)"
+  backstageEntityGrafanaDashboard="$(yq '.spec.backstageCatalogEntity.grafanaDashboard' /kratix/input/object.yaml)"
 
   # explicit export after assignemnt to avoid loosing the exit code
   # of the command invoked - this breaks `-e` behavior
@@ -49,6 +50,7 @@ function load_kratix_input() {
   export regInfoCmNamespace
   export backstageEntityOwner
   export backstageEntityLifecycle
+  export backstageEntityGrafanaDashboard
 
   echo "Input loaded from /kratix/input/object.yaml"
 }
