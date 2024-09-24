@@ -1,27 +1,52 @@
 apiVersion: promise.platform.giantswarm.io/v1beta1
-kind: AppDeployment
+kind: appdeployment
 metadata:
   name: my-go-project-1
 spec:
+  database:
+    connectionSecretRef:
+      name: demotech-rcc-rds-master
+    engine: aurora-postgresql
+    eso:
+      clusterSsaField: demotech_rcc
+      tenantCluster:
+        apiServerEndpoint: demotech-rds-apiserver.eu-central-1.elb.amazonaws.com
+        clusterName: demotech-rds
+        enabled: true
+    providerConfigRef:
+      name: demotech-rcc-postgresql-provider-config
   interval: 1m
-  statusConfigMapReference:
-    name: blah
-  version: ">=0.1.0"
-  dependsOn:
-    - name: test1
   kubeConfig:
     secretRef:
-      name: stage-kubeconfig
+      name: demotech-rds-kubeconfig
   releaseName: my-go-project-1
-  targetNamespace: default
+  statusConfigMapReference:
+    name: my-go-project-1-info
   storageNamespace: default
   suspend: false
+  targetNamespace: default
   timeout: 3m
   values:
-    enableDb: true
-  valuesFrom:
-    - kind: Secret
-      name: prod-tls-values
-      valuesKey: crt
-      targetPath: tls.crt
-      optional: true
+    autoscaling:
+      enabled: false
+    database:
+      connectionSecretName: my-go-project-1-rds-user
+      name: my-go-project-1
+    inMemoryStore: false
+    ingress:
+      annotations:
+        kubernetes.io/tls-acme: "true"
+      enabled: true
+      host: my-go-project-1.host.com
+      tls:
+        - hosts:
+            - my-go-project-1.host.com
+          secretName: my-go-project-1
+    monitoring:
+      serviceMonitor:
+        enabled: true
+        extraLabels:
+          application.giantswarm.io/team: my-team
+    pdb:
+      enabled: false
+    redisConnectionSecretName: demotech-rcc-elasticache-user

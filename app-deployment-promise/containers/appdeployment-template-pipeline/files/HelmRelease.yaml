@@ -18,9 +18,6 @@ spec:
         # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
   #      verify:
   #        provider: cosign
-  # This should not be set when kubeconfig is set as well!
-  #  serviceAccountName: automation
-
   suspend: false
   timeout: "3m"
   valuesFrom:

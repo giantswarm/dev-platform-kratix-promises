@@ -3,6 +3,8 @@ kind: HelmRelease
 metadata:
   annotations:
     kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1:=Ignore}
+  labels:
+    giantswarm.io/cluster: my-wc-cluster
   name: my-go-project-1
   namespace: default
 spec:
