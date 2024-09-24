@@ -28,6 +28,7 @@ function test_image() {
     echo "*** Running test..."
     rm -f "$c/actual/output/*"
     rm -f "$c/actual/metadata/*"
+    set +e
     docker run -it --rm \
       -u "$(id -u):$(id -g)" \
       -v "${PWD}/$c/input:/kratix/input" \
@@ -36,6 +37,7 @@ function test_image() {
       -e TEST_RUN=true \
       "$image_name"
     exit_status=$?
+    set -e
     expected_exit_status=0
     if [[ -f "$c/expected/exitcode" ]]; then
       expected_exit_status=$(cat "$c/expected/exitcode")
