@@ -36,6 +36,7 @@ spec:
                     - database
                     - interval
                     - statusConfigMapReference
+                    - ingressHost
                   description: AppDeploymentSpec defines the desired state of a Helm release and Logical Database.
                   properties:
                     database:
@@ -114,6 +115,9 @@ spec:
                       description: Interval at which to reconcile the Helm release.
                       pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
                       default: "1m"
+                      type: string
+                    ingressHost:
+                      description: FQDN to use for the hostname of the service
                       type: string
                     kubeConfig:
                       description: |-

@@ -4,6 +4,18 @@ metadata:
   name: my-go-project-1
   namespace: default
 spec:
+  database:
+    connectionSecretRef:
+      name: demotech-rcc-rds-master
+    engine: aurora-postgresql
+    eso:
+      clusterSsaField: demotech_rcc
+      tenantCluster:
+        apiServerEndpoint: demotech-rds-apiserver.eu-central-1.elb.amazonaws.com
+        clusterName: demotech-rds
+        enabled: true
+    providerConfigRef:
+      name: demotech-rcc-postgresql-provider-config
   interval: 1m
   statusConfigMapReference:
     name: blah-private

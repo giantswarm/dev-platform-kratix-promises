@@ -5,6 +5,8 @@ metadata:
     kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1:=Ignore}
   name: my-go-project-1
   namespace: default
+  labels:
+    giantswarm.io/cluster: demotech-rds
 spec:
   interval: 1m
   chart:
@@ -18,8 +20,6 @@ spec:
         # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
   #      verify:
   #        provider: cosign
-
-  serviceAccountName: automation
   suspend: false
   timeout: "3m"
   values:

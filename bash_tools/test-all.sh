@@ -77,8 +77,10 @@ function copy_resource_request_example() {
   if [[ ! -f "$dir/Dockerfile" || ! -d "$dir/tests/resource_request_example" ]]; then
     return
   fi
-  echo "Copying resource_request_example to $dir"
-  cp "resource-request.yaml" "$dir/tests/resource_request_example/input/object.yaml"
+  src="resource-request.yaml"
+  dst="$dir/tests/resource_request_example/input/object.yaml"
+  echo "Copying $src to $dst"
+  cp "$src" "$dst"
 }
 
 set -e
