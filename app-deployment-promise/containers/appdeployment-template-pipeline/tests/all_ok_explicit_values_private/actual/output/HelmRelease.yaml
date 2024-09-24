@@ -11,11 +11,11 @@ spec:
   interval: 1m
   chart:
     spec:
-      chart: github-repo
+      chart: my-go-project-1
       version: ">0.1.0"
       sourceRef:
         kind: HelmRepository
-        name: flux-helm-repository
+        name: my-go-project-1
         # Disable until Flux v2.2.0 cos keyless verification is not supported before that
         # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
   #      verify:
@@ -23,17 +23,34 @@ spec:
   suspend: false
   timeout: "3m"
   values:
+    autoscaling:
+      enabled: false
+    database:
+      connectionSecretName: my-go-project-1-rds-user
+      name: my-go-project-1
+    inMemoryStore: false
+    ingress:
+      annotations:
+        kubernetes.io/tls-acme: "true"
+      enabled: true
+      host: demo.tech.none
+      tls:
+        - hosts:
+            - demo.tech.none
+          secretName: my-go-project-1
+    monitoring:
+      serviceMonitor:
+        enabled: true
+        extraLabels:
+          application.giantswarm.io/team: my-team
+    pdb:
+      enabled: false
     imagePullSecrets:
       - name: ghcr-pull-secret
     enableDb: true
+    redisConnectionSecretName: my-go-project-1-elasticache-user
   dependsOn:
     - name: test1
   kubeConfig:
     secretRef:
       name: stage-kubeconfig
-  valuesFrom:
-    - kind: Secret
-      name: prod-tls-values
-      valuesKey: crt
-      targetPath: tls.crt
-      optional: true

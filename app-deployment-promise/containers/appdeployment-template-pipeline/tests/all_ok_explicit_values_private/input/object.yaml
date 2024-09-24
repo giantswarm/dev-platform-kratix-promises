@@ -16,6 +16,7 @@ spec:
         enabled: true
     providerConfigRef:
       name: demotech-rcc-postgresql-provider-config
+  ingressHost: demo.tech.none
   interval: 1m
   statusConfigMapReference:
     name: blah-private
@@ -29,9 +30,3 @@ spec:
   timeout: 3m
   values:
     enableDb: true
-  valuesFrom:
-    - kind: Secret
-      name: prod-tls-values
-      valuesKey: crt
-      targetPath: tls.crt
-      optional: true
