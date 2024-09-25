@@ -4,6 +4,9 @@ metadata:
   name: my-go-project-1
   namespace: default
 spec:
+  backstageCatalogEntity:
+    owner: group:default/team-platform
+    lifecycle: experimental
   repository:
     name: my-go-project-1
     owner: DemoTechInc

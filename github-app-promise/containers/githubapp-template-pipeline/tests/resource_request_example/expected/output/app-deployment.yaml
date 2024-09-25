@@ -1,0 +1,31 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: appdeployment
+metadata:
+  name: my-go-project-1
+  namespace: default
+spec:
+  database:
+    connectionSecretRef:
+      name: demotech-rcc-rds-master
+    engine: aurora-postgresql
+    eso:
+      clusterSsaField: demotech_rcc
+      tenantCluster:
+        apiServerEndpoint: demotech-rds-apiserver.eu-central-1.elb.amazonaws.com
+        clusterName: demotech-rds
+        enabled: true
+    providerConfigRef:
+      name: demotech-rcc-postgresql-provider-config
+  interval: 1m
+  ingressHost: demo.tech.none
+  kubeConfig:
+    secretRef:
+      name: demotech-rds-kubeconfig
+  releaseName: my-go-project-1
+  storageNamespace: default
+  suspend: false
+  targetNamespace: default
+  timeout: 3m
+  values: {}
+  statusConfigMapReference:
+    name: my-go-project-1-info
