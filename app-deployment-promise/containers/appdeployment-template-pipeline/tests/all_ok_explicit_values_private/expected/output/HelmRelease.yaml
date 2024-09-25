@@ -45,10 +45,10 @@ spec:
           application.giantswarm.io/team: my-team
     pdb:
       enabled: false
+    redisConnectionSecretName: demotech-rcc-elasticache-user
     imagePullSecrets:
       - name: ghcr-pull-secret
     enableDb: true
-    redisConnectionSecretName: my-go-project-1-elasticache-user
   dependsOn:
     - name: test1
   kubeConfig:

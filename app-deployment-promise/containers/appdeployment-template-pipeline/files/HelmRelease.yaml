@@ -43,3 +43,4 @@ spec:
           application.giantswarm.io/team: fill-me
     pdb:
       enabled: false
+    redisConnectionSecretName: demotech-rcc-elasticache-user

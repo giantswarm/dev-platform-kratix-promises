@@ -45,7 +45,7 @@ spec:
           application.giantswarm.io/team: my-team
     pdb:
       enabled: false
-    redisConnectionSecretName: my-go-project-1-elasticache-user
+    redisConnectionSecretName: demotech-rcc-elasticache-user
   kubeConfig:
     secretRef:
       name: demotech-rds-kubeconfig

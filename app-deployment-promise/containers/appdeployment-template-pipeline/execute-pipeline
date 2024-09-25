@@ -145,7 +145,8 @@ DB_SECRET_REF="$(yq '.spec.database.connectionSecretRef.name' "$KRATIX_INPUT")"
 export DB_SECRET_REF
 yq -i '.spec.values.database.connectionSecretName = strenv(OBJ_NAME) + "-rds-user"' "$HELM_RELEASE_PATH"
 yq -i '.spec.values.database.name = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
-yq -i '.spec.values.redisConnectionSecretName = strenv(OBJ_NAME) + "-elasticache-user"' "$HELM_RELEASE_PATH"
+# TODO: for the time being, this has to be a constant; add back when crossplane supports this
+# yq -i '.spec.values.redisConnectionSecretName = strenv(OBJ_NAME) + "-elasticache-user"' "$HELM_RELEASE_PATH"
 export GITHUB_REPO_OWNER
 yq -i '.spec.values.monitoring.serviceMonitor.extraLabels."application.giantswarm.io/team" = strenv(GITHUB_REPO_OWNER)' "$HELM_RELEASE_PATH"
 
