@@ -1,0 +1,39 @@
+apiVersion: xdatabase.crossplane.giantswarm.io/v1alpha1
+kind: LogicalDatabaseClaim
+metadata:
+  annotations:
+    kustomize.toolkit.fluxcd.io/ssa: ${demotech_rcc:=Ignore}
+  name: my-go-project-1
+  namespace: default
+spec:
+  compositeDeletePolicy: Background
+  compositionRef:
+    name: logical-database
+  compositionRevisionRef:
+    name: logical-database-b985efc
+  compositionUpdatePolicy: Automatic
+  databases:
+    my-go-project-1:
+      users:
+        my-go-project-1:
+          connectionLimit: 100
+  deletionPolicy: Delete
+  engine: aurora-postgresql
+  eso:
+    enabled: true
+    fluxSSASecretName: fluxssa
+    kubernetesSecretStore: default
+    tenantCluster:
+      apiServerEndpoint: demotech-rds-apiserver.eu-central-1.elb.amazonaws.com
+      clusterName: demotech-rds
+      enabled: true
+  kubernetesProviderConfig:
+    name: default
+  managementPolicies:
+    - "*"
+  providerConfigRef:
+    name: demotech-rcc-postgresql-provider-config
+  resourceRef:
+    apiVersion: xdatabase.crossplane.giantswarm.io/v1alpha1
+    kind: RdsLogicalDatabase
+    name: my-go-project-1-t9kxv
