@@ -140,7 +140,6 @@ spec:
                           required:
                             - database
                             - interval
-                            - ingressHost
                           description: AppDeploymentSpec defines the desired state of a Helm release and Logical Database.
                           properties:
                             database:
