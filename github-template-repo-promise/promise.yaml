@@ -4,7 +4,7 @@ kind: Promise
 metadata:
   name: githubrepo
   labels:
-    kratix.io/promise-version: v0.0.1
+    kratix.io/promise-version: v0.0.2
   namespace: default
 spec:
   api:
@@ -115,12 +115,12 @@ spec:
           spec:
             rbac:
               permissions:
-                - apiGroups: [ "" ]
-                  verbs: [ "get", "list" ]
-                  resources: [ "secrets" ]
-                - apiGroups: [ "" ]
-                  verbs: [ "get", "list" ]
-                  resources: [ "configmaps" ]
+                - apiGroups: [""]
+                  verbs: ["get", "list"]
+                  resources: ["secrets"]
+                - apiGroups: [""]
+                  verbs: ["get", "list"]
+                  resources: ["configmaps"]
             volumes:
               - name: repo
                 emptyDir: {}

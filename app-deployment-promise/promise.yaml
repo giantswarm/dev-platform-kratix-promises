@@ -4,7 +4,7 @@ kind: Promise
 metadata:
   name: appdeployment
   labels:
-    kratix.io/promise-version: v0.0.1
+    kratix.io/promise-version: v0.0.2
   namespace: default
 spec:
   api:

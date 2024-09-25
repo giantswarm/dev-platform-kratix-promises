@@ -5,14 +5,14 @@ kind: Promise
 metadata:
   name: githubapp
   labels:
-    kratix.io/promise-version: v0.0.1
+    kratix.io/promise-version: v0.0.2
   namespace: default
 spec:
   requiredPromises:
     - name: githubrepo
-      version: v0.0.1
+      version: v0.0.2
     - name: appdeployment
-      version: v0.0.1
+      version: v0.0.2
   api:
     apiVersion: apiextensions.k8s.io/v1
     kind: CustomResourceDefinition
