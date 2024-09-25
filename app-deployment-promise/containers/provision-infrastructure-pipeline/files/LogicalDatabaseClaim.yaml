@@ -1,14 +1,9 @@
 apiVersion: xdatabase.crossplane.giantswarm.io/v1alpha1
 kind: LogicalDatabaseClaim
 metadata:
-  name: my-go-project-1
+  name: fill-me
   namespace: default
 spec:
-  databases:
-    my-go-project-1:
-      users:
-        my-go-project-1:
-          connectionLimit: 100
   deletionPolicy: Delete
   engine: aurora-postgresql
   eso:
