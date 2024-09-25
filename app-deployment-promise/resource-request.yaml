@@ -4,8 +4,6 @@ metadata:
   name: my-go-project-1
 spec:
   database:
-    connectionSecretRef:
-      name: demotech-rcc-rds-master
     engine: aurora-postgresql
     eso:
       clusterSsaField: demotech_rcc

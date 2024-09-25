@@ -5,8 +5,6 @@ metadata:
   namespace: default
 spec:
   database:
-    connectionSecretRef:
-      name: demotech-rcc-rds-master
     engine: aurora-postgresql
     eso:
       clusterSsaField: demotech_rcc

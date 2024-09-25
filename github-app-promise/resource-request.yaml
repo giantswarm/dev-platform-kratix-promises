@@ -23,8 +23,6 @@ spec:
     name: my-go-project-dev
     spec:
       database:
-        connectionSecretRef:
-          name: demotech-rcc-rds-master
         engine: aurora-postgresql
         eso:
           clusterSsaField: demotech_rcc
