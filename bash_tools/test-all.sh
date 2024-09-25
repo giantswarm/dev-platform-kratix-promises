@@ -68,23 +68,7 @@ function test_image() {
   cd ../..
 }
 
-function copy_resource_request_example() {
-  if [[ $# != 1 ]]; then
-    echo "Usage: $0 [dir]"
-    exit 1
-  fi
-  dir="$1"
-  if [[ ! -f "$dir/Dockerfile" || ! -d "$dir/tests/resource_request_example" ]]; then
-    return
-  fi
-  src="resource-request.yaml"
-  dst="$dir/tests/resource_request_example/input/object.yaml"
-  echo "Copying $src to $dst"
-  cp "$src" "$dst"
-}
-
 set -e
 ./build-all.sh
 ./validate-all.sh
-for_dirs "containers" copy_resource_request_example
 for_dirs "containers" test_image
