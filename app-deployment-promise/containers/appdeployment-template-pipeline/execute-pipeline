@@ -8,9 +8,10 @@ function mock_kubectl() {
     VIS=${3#*-}
     cat >"$STATUS_CONFIGMAP_PATH" <<EOF
 data:
-  repoName: "github-repo"
-  fluxHelmRepositoryName: "flux-helm-repository"
+  repoName: "my-go-project-1"
+  fluxHelmRepositoryName: "my-go-project-1"
   repoVisibility: "$VIS"
+  repoOwner: my-team
   registryInfoConfigMapName: github-oci-registry-info
 EOF
   fi
@@ -80,6 +81,12 @@ if [[ "$GITHUB_REPO_VISIBILITY" == "null" ]]; then
   write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
   exit 4
 fi
+KEY=".data.repoOwner"
+GITHUB_REPO_OWNER=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
+if [[ "$GITHUB_REPO_OWNER" == "null" ]]; then
+  write_metadata_message "'$KEY' key not found in the '$OBJ_NAMESPACE/$STATUS_CONFIGMAP_NAME' ConfigMap."
+  exit 4
+fi
 KEY=".data.registryInfoConfigMapName"
 REGINFO_CONFIGMAP_NAME=$(yq "$KEY" "$STATUS_CONFIGMAP_PATH")
 if [[ "$REGINFO_CONFIGMAP_NAME" == "null" ]]; then
@@ -112,11 +119,13 @@ export OBJ_NAMESPACE
 
 OBJ_NAME_SSA_SANITIZED="$(echo "${OBJ_NAME//-/_}" | tr '[:upper:]' '[:lower:]')"
 export OBJ_NAME_SSA_SANITIZED
-
+DB_ESO_TENANT_CLUSTER_NAME=$(yq '.spec.database.eso.tenantCluster.clusterName' "$KRATIX_INPUT")
+export DB_ESO_TENANT_CLUSTER_NAME
 yq -i '.metadata.name = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
 yq -i '.metadata.namespace = strenv(OBJ_NAMESPACE)' "$HELM_RELEASE_PATH"
 # shellcheck disable=SC2016
 yq -i '.metadata.annotations."kustomize.toolkit.fluxcd.io/ssa" = "${" + strenv(OBJ_NAME_SSA_SANITIZED) + ":=Ignore}"' "$HELM_RELEASE_PATH"
+yq -i '.metadata.labels."giantswarm.io/cluster" = strenv(DB_ESO_TENANT_CLUSTER_NAME)' "$HELM_RELEASE_PATH"
 yq -i '.spec.chart.spec.chart = strenv(GITHUB_REPO_NAME)' "$HELM_RELEASE_PATH"
 yq -i '.spec.chart.spec.sourceRef.name = strenv(HELM_REPO_NAME)' "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.interval' '.spec.interval = strenv(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
@@ -125,9 +134,8 @@ yq_copy_if_exists '.spec.dependsOn' '.spec.dependsOn = env(VAR)' "$KRATIX_INPUT"
 yq_copy_if_exists '.spec.kubeConfig' '.spec.kubeConfig = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.suspend // false' '.spec.suspend = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.timeout' '.spec.timeout = strenv(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
-yq_copy_if_exists '.spec.values' '.spec.values *= env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
+yq -i ".spec.values *= load(\"$KRATIX_INPUT\").spec.values | .spec.values style=\"\"" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.valuesFrom' '.spec.valuesFrom = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
-
 yq_copy_if_exists '.spec.serviceAccountName' '.spec.serviceAccountName = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.releaseName' '.spec.releaseName = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
 yq_copy_if_exists '.spec.storageNamespace' '.spec.storageNamespace = env(VAR)' "$KRATIX_INPUT" "$HELM_RELEASE_PATH"
@@ -135,10 +143,16 @@ yq_copy_if_exists '.spec.targetNamespace' '.spec.targetNamespace = env(VAR)' "$K
 
 DB_SECRET_REF="$(yq '.spec.database.connectionSecretRef.name' "$KRATIX_INPUT")"
 export DB_SECRET_REF
+yq -i '.spec.values.database.connectionSecretName = strenv(OBJ_NAME) + "-rds-user"' "$HELM_RELEASE_PATH"
+yq -i '.spec.values.database.name = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
+yq -i '.spec.values.redisConnectionSecretName = strenv(OBJ_NAME) + "-elasticache-user"' "$HELM_RELEASE_PATH"
+export GITHUB_REPO_OWNER
+yq -i '.spec.values.monitoring.serviceMonitor.extraLabels."application.giantswarm.io/team" = strenv(GITHUB_REPO_OWNER)' "$HELM_RELEASE_PATH"
 
-yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.address") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
-yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.port") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
-yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.username") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
-yq -i '(.spec.valuesFrom[] | select(.targetPath == "database.password") | .name) = strenv(DB_SECRET_REF)' "$HELM_RELEASE_PATH"
+INGRESS_HOST="$(yq '.spec.ingressHost' "$KRATIX_INPUT")"
+export INGRESS_HOST
+yq -i '.spec.values.ingress.host = strenv(INGRESS_HOST)' "$HELM_RELEASE_PATH"
+yq -i '.spec.values.ingress.tls.[0].hosts.[0] = strenv(INGRESS_HOST)' "$HELM_RELEASE_PATH"
+yq -i '.spec.values.ingress.tls.[0].secretName = strenv(OBJ_NAME)' "$HELM_RELEASE_PATH"
 
 write_metadata_message "HelmRelease object '$OBJ_NAMESPACE/$OBJ_NAME' successfully created"

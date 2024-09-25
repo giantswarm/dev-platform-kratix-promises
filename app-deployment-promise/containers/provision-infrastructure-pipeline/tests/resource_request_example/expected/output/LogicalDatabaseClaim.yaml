@@ -2,7 +2,7 @@ apiVersion: xdatabase.crossplane.giantswarm.io/v1alpha1
 kind: LogicalDatabaseClaim
 metadata:
   annotations:
-    kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
+    kustomize.toolkit.fluxcd.io/ssa: ${demotech_rcc:=Ignore}
   name: my-go-project-1
   namespace: default
 spec:
@@ -24,7 +24,7 @@ spec:
     fluxSSASecretName: fluxssa
     kubernetesSecretStore: default
     tenantCluster:
-      apiServerEndpoint: demotech-rds-apiserver-852993111.eu-central-1.elb.amazonaws.com
+      apiServerEndpoint: demotech-rds-apiserver.eu-central-1.elb.amazonaws.com
       clusterName: demotech-rds
       enabled: true
   kubernetesProviderConfig:

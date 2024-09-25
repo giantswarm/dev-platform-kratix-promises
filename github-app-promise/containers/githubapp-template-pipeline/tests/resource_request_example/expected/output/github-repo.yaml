@@ -2,17 +2,18 @@ apiVersion: promise.platform.giantswarm.io/v1beta1
 kind: githubrepo
 metadata:
   name: my-go-project-1
+  namespace: default
 spec:
   backstageCatalogEntity:
     owner: group:default/team-platform
     lifecycle: experimental
   repository:
-    name: test_repo
-    owner: littleswarm
+    name: my-go-project-1
+    owner: DemoTechInc
     description: "My first kratix project"
     templateSource: giantswarm/devplatform-template-go-service
     visibility: private
   registryInfoConfigMapRef:
     name: github-oci-registry-info
   githubTokenSecretRef:
-    name: github-create-repo-token
+    name: dev-platform-gh-access

@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash -e
 
 my_dir=$(dirname -- "$(readlink -f -- "$0")")
 source "$my_dir/../bash_libs/dir-tools.sh"

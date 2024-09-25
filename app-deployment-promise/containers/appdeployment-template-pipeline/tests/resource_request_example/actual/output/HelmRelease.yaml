@@ -2,18 +2,20 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   annotations:
-    kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
+    kustomize.toolkit.fluxcd.io/ssa: ${my_go_project_1:=Ignore}
   name: my-go-project-1
   namespace: default
+  labels:
+    giantswarm.io/cluster: demotech-rds
 spec:
   interval: 1m
   chart:
     spec:
-      chart: test-hg-repo
-      version: ">0.1.0"
+      chart: my-go-project-1
+      version: "*"
       sourceRef:
         kind: HelmRepository
-        name: test-helm-repo
+        name: my-go-project-1
         # Disable until Flux v2.2.0 cos keyless verification is not supported before that
         # or support key based signing: https://gigantic.slack.com/archives/C02GDJJ68Q1/p1723710023444289?thread_ts=1722593976.383529&cid=C02GDJJ68Q1
   #      verify:
@@ -24,22 +26,29 @@ spec:
     autoscaling:
       enabled: false
     database:
-      connectionSecretName: fill-me
-      name: fill-me
+      connectionSecretName: my-go-project-1-rds-user
+      name: my-go-project-1
     inMemoryStore: false
     ingress:
       annotations:
         kubernetes.io/tls-acme: "true"
       enabled: true
-      host: fill-me
+      host: demo.tech.none
       tls:
         - hosts:
-            - fill-me
-          secretName: fill-me
+            - demo.tech.none
+          secretName: my-go-project-1
     monitoring:
       serviceMonitor:
         enabled: true
         extraLabels:
-          application.giantswarm.io/team: fill-me
+          application.giantswarm.io/team: my-team
     pdb:
       enabled: false
+    redisConnectionSecretName: my-go-project-1-elasticache-user
+  kubeConfig:
+    secretRef:
+      name: demotech-rds-kubeconfig
+  releaseName: my-go-project-1
+  storageNamespace: default
+  targetNamespace: default

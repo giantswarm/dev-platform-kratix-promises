@@ -3,6 +3,9 @@ kind: githubrepo
 metadata:
   name: my-go-project-1
 spec:
+  backstageCatalogEntity:
+    owner: group:default/team-platform
+    lifecycle: experimental
   repository:
     name: test_repo
     owner: giantswarm

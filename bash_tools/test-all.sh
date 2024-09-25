@@ -28,6 +28,7 @@ function test_image() {
     echo "*** Running test..."
     rm -f "$c/actual/output/*"
     rm -f "$c/actual/metadata/*"
+    set +e
     docker run -it --rm \
       -u "$(id -u):$(id -g)" \
       -v "${PWD}/$c/input:/kratix/input" \
@@ -36,6 +37,7 @@ function test_image() {
       -e TEST_RUN=true \
       "$image_name"
     exit_status=$?
+    set -e
     expected_exit_status=0
     if [[ -f "$c/expected/exitcode" ]]; then
       expected_exit_status=$(cat "$c/expected/exitcode")
@@ -66,7 +68,23 @@ function test_image() {
   cd ../..
 }
 
+function copy_resource_request_example() {
+  if [[ $# != 1 ]]; then
+    echo "Usage: $0 [dir]"
+    exit 1
+  fi
+  dir="$1"
+  if [[ ! -f "$dir/Dockerfile" || ! -d "$dir/tests/resource_request_example" ]]; then
+    return
+  fi
+  src="resource-request.yaml"
+  dst="$dir/tests/resource_request_example/input/object.yaml"
+  echo "Copying $src to $dst"
+  cp "$src" "$dst"
+}
+
 set -e
 ./build-all.sh
 ./validate-all.sh
+for_dirs "containers" copy_resource_request_example
 for_dirs "containers" test_image
