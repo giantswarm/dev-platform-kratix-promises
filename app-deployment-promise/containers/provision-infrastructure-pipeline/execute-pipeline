@@ -51,8 +51,6 @@ LOGICAL_DATABASE_PATH="/kratix/output/LogicalDatabaseClaim.yaml"
 
 yq -i '.spec.engine = strenv(DB_ENGINE)' "${LOGICAL_DATABASE_PATH}"
 yq -i '.spec.providerConfigRef.name = strenv(DB_PROVIDER_CONFIG_REF_NAME)' "${LOGICAL_DATABASE_PATH}"
-# shellcheck disable=SC2016
-yq -i '.metadata.annotations."kustomize.toolkit.fluxcd.io/ssa" = "${" + strenv(DB_ESO_CLUSTER_SSA_FIELD) + ":=Ignore}"' "${LOGICAL_DATABASE_PATH}"
 
 if [[ "${DB_ESO_TENANT_CLUSTER_ENABLED}" == "true" ]]; then
   yq -i '.spec.eso.tenantCluster.apiServerEndpoint = strenv(DB_ESO_TENANT_CLUSTER_API_ENDPOINT)' "${LOGICAL_DATABASE_PATH}"
