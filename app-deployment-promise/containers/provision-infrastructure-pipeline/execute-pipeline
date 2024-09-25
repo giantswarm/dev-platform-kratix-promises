@@ -60,6 +60,6 @@ if [[ "${DB_ESO_TENANT_CLUSTER_ENABLED}" == "true" ]]; then
   yq -i '.spec.eso.tenantCluster.enabled = env(DB_ESO_TENANT_CLUSTER_ENABLED)' "${LOGICAL_DATABASE_PATH}"
 fi
 
-write_metadata_message "Infrastructure requested with Crossplane using CROSSPLANE-MAGIC object '$OBJ_NAMESPACE/$OBJ_NAME'"
+write_metadata_message "Infrastructure requested with Crossplane using LogicalDatabaseClaim object '$OBJ_NAMESPACE/$OBJ_NAME'"
 
 exit 0

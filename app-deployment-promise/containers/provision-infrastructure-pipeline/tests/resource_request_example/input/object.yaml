@@ -1,8 +1,7 @@
 apiVersion: promise.platform.giantswarm.io/v1beta1
-kind: AppDeployment
+kind: appdeployment
 metadata:
   name: my-go-project-1
-  namespace: default
 spec:
   database:
     connectionSecretRef:
@@ -16,23 +15,16 @@ spec:
         enabled: true
     providerConfigRef:
       name: demotech-rcc-postgresql-provider-config
-  ingressHost: demo.tech.none
   interval: 1m
-  statusConfigMapReference:
-    name: blah
-  version: ">0.1.0"
-  dependsOn:
-    - name: test1
+  ingressHost: demo.tech.none
   kubeConfig:
     secretRef:
-      name: stage-kubeconfig
+      name: demotech-rds-kubeconfig
+  releaseName: my-go-project-1
+  statusConfigMapReference:
+    name: blah-public
+  storageNamespace: default
   suspend: false
+  targetNamespace: default
   timeout: 3m
-  values:
-    enableDb: true
-  valuesFrom:
-    - kind: Secret
-      name: prod-tls-values
-      valuesKey: crt
-      targetPath: tls.crt
-      optional: true
+  values: {}
