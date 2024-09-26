@@ -1,8 +1,9 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  annotations:
-    kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
+  # TODO: check why it didn't work and enable back
+  # annotations:
+  # kustomize.toolkit.fluxcd.io/ssa: ${my-go-project-1-ssa:=Ignore}
   name: my-go-project-1
   namespace: default
 spec:
