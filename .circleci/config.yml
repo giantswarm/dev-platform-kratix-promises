@@ -25,42 +25,32 @@ workflows:
           image: giantswarm/appdeployment-template-pipeline
           dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
+          git-tag-prefix: app-deployment-promise
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
-      #      - architect/push-to-registries:
-      #          context: architect
-      #          name: build-check-if-infra-ready
-      #          image: giantswarm/check-if-infra-ready-pipeline
-      #          dockerfile: ./app-deployment-promise/containers/check-if-infra-ready-pipeline/Dockerfile
-      #          build-context: ./app-deployment-promise/containers
-      #          registries-data: |-
-      #            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-      #          filters:
-      #            tags:
-      #              only: /.*/
+          # filters:
+          # tags:
+          # only: /.*/
       - architect/push-to-registries:
           context: architect
           name: build-provision-infrastructure
           image: giantswarm/provision-infrastructure-pipeline
           dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
+          git-tag-prefix: app-deployment-promise
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
+          # filters:
+          # tags:
+          # only: /.*/
       - execute-tests:
           promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template
-            # - build-check-if-infra-ready
             - build-provision-infrastructure
           filters:
             tags:
-              only: /.*/
+              only: /app-deployment-promise\/.*/
   build-github-template-repo-promise:
     jobs:
       - architect/push-to-registries:
