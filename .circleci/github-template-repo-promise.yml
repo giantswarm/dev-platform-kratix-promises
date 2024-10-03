@@ -1,0 +1,53 @@
+version: 2.1
+orbs:
+  architect: giantswarm/architect@5.2.1
+
+jobs:
+  execute-tests:
+    machine:
+      image: default
+    parameters:
+      promise-dir:
+        type: string
+    steps:
+      - checkout
+      - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
+      - run: "pyenv global 3 && python -m venv env && source env/bin/activate"
+      - run: "python --version && pip install pyyaml"
+      - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
+
+workflows:
+  build-github-template-repo-promise:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-clone-template-repo
+          image: giantswarm/github-cli-clone-template-repo-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-pipeline/Dockerfile
+          git-tag-prefix: github-template-repo-promise
+          build-context: ./github-template-repo-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+        #          filters:
+        #            tags:
+        #              only: /.*/
+      - architect/push-to-registries:
+          context: architect
+          name: build-github-cli-template-values
+          image: giantswarm/github-cli-template-values-promise
+          dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
+          git-tag-prefix: github-template-repo-promise
+          build-context: ./github-template-repo-promise/containers
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+        #          filters:
+        #            tags:
+        #              only: /.*/
+      - execute-tests:
+          promise-dir: "app-deployment-promise"
+          requires:
+            - build-github-cli-clone-template-repo
+            - build-github-cli-template-values
+          filters:
+            tags:
+              only: /github-template-repo-promise\/.*/

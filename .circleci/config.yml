@@ -1,105 +1,14 @@
-version: 2.1
-orbs:
-  architect: giantswarm/architect@5.2.1
+version: "2.1"
+setup: true
 
-jobs:
-  execute-tests:
-    machine:
-      image: default
-    parameters:
-      promise-dir:
-        type: string
-    steps:
-      - checkout
-      - run: "cd /usr/bin && curl -fsSL https://github.com/yannh/kubeconform/releases/download/v0.6.7/kubeconform-linux-amd64.tar.gz | sudo tar xzf - && cd -"
-      - run: "pyenv global 3 && python -m venv env && source env/bin/activate"
-      - run: "python --version && pip install pyyaml"
-      - run: "cd ./<< parameters.promise-dir >> && FAIL_FAST=true ./test-all.sh"
+orbs:
+  dynamic: bjd2385/dynamic-continuation@3.8.2
+
+jobs: {}
 
 workflows:
-  build-app-deployment-promise:
+  on-commit:
     jobs:
-      - architect/push-to-registries:
-          context: architect
-          name: build-appdeployment-template
-          image: giantswarm/appdeployment-template-pipeline
-          dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
-          build-context: ./app-deployment-promise/containers
-          git-tag-prefix: app-deployment-promise
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          # filters:
-          # tags:
-          # only: /.*/
-      - architect/push-to-registries:
-          context: architect
-          name: build-provision-infrastructure
-          image: giantswarm/provision-infrastructure-pipeline
-          dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
-          build-context: ./app-deployment-promise/containers
-          git-tag-prefix: app-deployment-promise
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          # filters:
-          # tags:
-          # only: /.*/
-      - execute-tests:
-          promise-dir: "app-deployment-promise"
-          requires:
-            - build-appdeployment-template
-            - build-provision-infrastructure
-          filters:
-            tags:
-              only: /app-deployment-promise\/.*/
-  build-github-template-repo-promise:
-    jobs:
-      - architect/push-to-registries:
-          context: architect
-          name: build-github-cli-clone-template-repo
-          image: giantswarm/github-cli-clone-template-repo-promise
-          dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-pipeline/Dockerfile
-          build-context: ./github-template-repo-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
-      - architect/push-to-registries:
-          context: architect
-          name: build-github-cli-template-values
-          image: giantswarm/github-cli-template-values-promise
-          dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
-          build-context: ./github-template-repo-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
-      - execute-tests:
-          promise-dir: "app-deployment-promise"
-          requires:
-            - build-github-cli-clone-template-repo
-            - build-github-cli-template-values
-          filters:
-            tags:
-              only: /.*/
-  build-github-app-promise:
-    jobs:
-      - architect/push-to-registries:
-          context: architect
-          name: build-githubapp-template-repo
-          image: giantswarm/githubapp-template-pipeline
-          dockerfile: ./github-app-promise/containers/githubapp-template-pipeline/Dockerfile
-          build-context: ./github-app-promise/containers
-          registries-data: |-
-            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          filters:
-            tags:
-              only: /.*/
-      - execute-tests:
-          promise-dir: "github-app-promise"
-          requires:
-            - build-githubapp-template-repo
-          filters:
-            tags:
-              only: /.*/
+      - dynamic/continue:
+          context: circleci
+          auto-detect: true
