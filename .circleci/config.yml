@@ -4,11 +4,24 @@ setup: true
 orbs:
   dynamic: bjd2385/dynamic-continuation@3.9.0
 
-jobs: {}
-
 workflows:
-  on-commit:
+  build:
     jobs:
       - dynamic/continue:
+          name: "Dynamic continuation - Force all modules on tags"
           context: circleci
           auto-detect: true
+          force-all: true
+          filters:
+            tags:
+              only: "/^.*/"
+            branches:
+              ignore: "/^.*/"
+      - dynamic/continue:
+          name: "Dynamic continuation - Branches"
+          context: circleci
+          auto-detect: true
+          force-all: false
+          filters:
+            branches:
+              ignore: "main"

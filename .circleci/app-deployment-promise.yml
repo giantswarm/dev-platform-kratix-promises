@@ -28,9 +28,11 @@ workflows:
           git-tag-prefix: app-deployment-promise
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          # filters:
-          # tags:
-          # only: /.*/
+          filters:
+            tags:
+              only: "/^app-deployment-promise.*/"
+            branches:
+              ignore: "main"
       - architect/push-to-registries:
           context: architect
           name: build-provision-infrastructure
@@ -40,9 +42,11 @@ workflows:
           git-tag-prefix: app-deployment-promise
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          # filters:
-          # tags:
-          # only: /.*/
+          filters:
+            tags:
+              only: "/^app-deployment-promise.*/"
+            branches:
+              ignore: "main"
       - execute-tests:
           promise-dir: "app-deployment-promise"
           requires:
@@ -50,4 +54,6 @@ workflows:
             - build-provision-infrastructure
           filters:
             tags:
-              only: /app-deployment-promise\/.*/
+              only: "/^app-deployment-promise.*/"
+            branches:
+              ignore: "main"

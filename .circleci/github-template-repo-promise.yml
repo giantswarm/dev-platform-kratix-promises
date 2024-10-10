@@ -28,9 +28,11 @@ workflows:
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-        #          filters:
-        #            tags:
-        #              only: /.*/
+          filters:
+            tags:
+              only: "/^github-template-repo-promise.*/"
+            branches:
+              ignore: "main"
       - architect/push-to-registries:
           context: architect
           name: build-github-cli-template-values
@@ -40,9 +42,11 @@ workflows:
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-        #          filters:
-        #            tags:
-        #              only: /.*/
+          filters:
+            tags:
+              only: "/^github-template-repo-promise.*/"
+            branches:
+              ignore: "main"
       - execute-tests:
           promise-dir: "app-deployment-promise"
           requires:
@@ -50,4 +54,6 @@ workflows:
             - build-github-cli-template-values
           filters:
             tags:
-              only: /github-template-repo-promise\/.*/
+              only: "/^github-template-repo-promise.*/"
+            branches:
+              ignore: "main"

@@ -28,13 +28,17 @@ workflows:
           build-context: ./github-app-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
-          # filters:
-          # tags:
-          # only: /.*/
+          filters:
+            tags:
+              only: "/^github-app-promise.*/"
+            branches:
+              ignore: "main"
       - execute-tests:
           promise-dir: "github-app-promise"
           requires:
             - build-githubapp-template-repo
           filters:
             tags:
-              only: /github-app-promise\/.*/
+              only: "/^github-app-promise.*/"
+            branches:
+              ignore: "main"
