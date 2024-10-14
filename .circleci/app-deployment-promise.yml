@@ -25,12 +25,12 @@ workflows:
           image: giantswarm/appdeployment-template-pipeline
           dockerfile: ./app-deployment-promise/containers/appdeployment-template-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
-          git-tag-prefix: app-deployment-promise
+          git-tag-prefix: appdeployment-template-pipeline
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
           filters:
             tags:
-              only: "/^app-deployment-promise.*/"
+              only: "/^appdeployment-template-pipeline.*/"
             branches:
               ignore: "main"
       - architect/push-to-registries:
@@ -39,12 +39,12 @@ workflows:
           image: giantswarm/provision-infrastructure-pipeline
           dockerfile: ./app-deployment-promise/containers/provision-infrastructure-pipeline/Dockerfile
           build-context: ./app-deployment-promise/containers
-          git-tag-prefix: app-deployment-promise
+          git-tag-prefix: provision-infrastructure-pipeline
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
           filters:
             tags:
-              only: "/^app-deployment-promise.*/"
+              only: "/^provision-infrastructure-pipeline.*/"
             branches:
               ignore: "main"
       - execute-tests-app-deployment-promise:
