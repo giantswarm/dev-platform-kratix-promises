@@ -3,7 +3,7 @@ orbs:
   architect: giantswarm/architect@5.10.1
 
 jobs:
-  execute-tests:
+  execute-tests-app-deployment-promise:
     machine:
       image: default
     parameters:
@@ -47,7 +47,7 @@ workflows:
               only: "/^app-deployment-promise.*/"
             branches:
               ignore: "main"
-      - execute-tests:
+      - execute-tests-app-deployment-promise:
           promise-dir: "app-deployment-promise"
           requires:
             - build-appdeployment-template

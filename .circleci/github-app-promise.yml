@@ -3,7 +3,7 @@ orbs:
   architect: giantswarm/architect@5.10.1
 
 jobs:
-  execute-tests:
+  execute-tests-github-app-promise:
     machine:
       image: default
     parameters:
@@ -33,7 +33,7 @@ workflows:
               only: "/^github-app-promise.*/"
             branches:
               ignore: "main"
-      - execute-tests:
+      - execute-tests-github-app-promise:
           promise-dir: "github-app-promise"
           requires:
             - build-githubapp-template-repo
