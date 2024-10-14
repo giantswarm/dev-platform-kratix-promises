@@ -24,13 +24,13 @@ workflows:
           name: build-githubapp-template-repo
           image: giantswarm/githubapp-template-pipeline
           dockerfile: ./github-app-promise/containers/githubapp-template-pipeline/Dockerfile
-          git-tag-prefix: github-app-promise
+          git-tag-prefix: githubapp-template-pipeline
           build-context: ./github-app-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
           filters:
             tags:
-              only: "/^github-app-promise.*/"
+              only: "/^githubapp-template-pipeline.*/"
             branches:
               ignore: "main"
       - execute-tests-github-app-promise:
