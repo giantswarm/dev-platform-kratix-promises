@@ -3,7 +3,7 @@ orbs:
   architect: giantswarm/architect@5.10.1
 
 jobs:
-  execute-tests:
+  execute-tests-github-template-repo-promise:
     machine:
       image: default
     parameters:
@@ -47,7 +47,7 @@ workflows:
               only: "/^github-template-repo-promise.*/"
             branches:
               ignore: "main"
-      - execute-tests:
+      - execute-tests-github-template-repo-promise:
           promise-dir: "app-deployment-promise"
           requires:
             - build-github-cli-clone-template-repo

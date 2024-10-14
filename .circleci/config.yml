@@ -11,6 +11,10 @@ workflows:
           name: "Dynamic continuation - Force all modules on tags"
           context: circleci
           auto-detect: true
+          # Disable root config detection by setting this to nonsense, otherwise 'app' is replaced
+          # in the detect module names as '.'.
+          # See: https://github.com/emmeowzing/dynamic-continuation-orb/blob/v3.9.0/src/jobs/continue.yml#L84-L87
+          root-config: the-owls-are-not-what-they-seem
           force-all: true
           filters:
             tags:
@@ -21,6 +25,10 @@ workflows:
           name: "Dynamic continuation - Branches"
           context: circleci
           auto-detect: true
+          # Disable root config detection by setting this to nonsense, otherwise 'app' is replaced
+          # in the detect module names as '.'.
+          # See: https://github.com/emmeowzing/dynamic-continuation-orb/blob/v3.9.0/src/jobs/continue.yml#L84-L87
+          root-config: the-owls-are-not-what-they-seem
           force-all: false
           filters:
             branches:
