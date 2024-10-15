@@ -140,9 +140,9 @@ EOF
 
 git rm -r '*'
 boilerplate --non-interactive \
-  --template-url /$NEW_PATH/project-template \
+  --template-url "$NEW_PATH"/project-template \
   --output-folder . \
-  --var-file /$NEW_PATH/boilerplate-values.yml
+  --var-file "$NEW_PATH"/boilerplate-values.yml
 
 git add -A
 set +e
