@@ -121,25 +121,34 @@ if [[ -n "$git_out" ]]; then
   exit 0
 fi
 
-set +e
 registryCicdSecretRef=$(echo "$regInfoJson" | jq -r '.registry_cicd_secret_ref')
 registryUsername=$(echo "$regInfoJson" | jq -r '.registry_username')
 registryDomain=$(echo "$regInfoJson" | jq -r '.registry_domain')
 
-for subst in \
-  "s/\[\[backstage-entity-owner\]\]/${backstageEntityOwner}/g" \
-  "s/\[\[backstage-entity-lifecycle\]\]/${backstageEntityLifecycle}/g" \
-  "s/\[\[image-name\]\]/${repoName,,}/g" \
-  "s/\[\[project-name\]\]/${repoName,,}/g" \
-  "s/\[\[registry-domain\]\]/${registryDomain,,}/g" \
-  "s/\[\[registry-name\]\]/${repoOwner,,}/g" \
-  "s/\[\[registry-username\]\]/${registryUsername}/g" \
-  "s/\[\[registry-cicd-secret-ref\]\]/${registryCicdSecretRef}/g" \
-  "s/\[\[repo-owner\]\]/${repoOwner}/g"; do
-  sed -Ei "$subst" "README.md" "go.mod" ".goreleaser.yaml" ".github/workflows/release.yaml" "Dockerfile" "catalog-info.yaml"
-  find helm/ -type f -regextype egrep -iregex ".*\.(tpl|txt|md|yaml|gotmpl|json)" -exec sed -Ei "$subst" {} \+
-done
+NEW_PATH=/tmp/boilerplate
+mkdir $NEW_PATH
+cp -a project-template/ /$NEW_PATH/
+cat >/$NEW_PATH/boilerplate-values.yml <<EOF
+BackstageEntityOwner: $backstageEntityOwner
+BackstageEntityLifecycle: $backstageEntityLifecycle
+ProjectName: ${repoName,,}
+RepoOwner: ${repoOwner,,}
+ImageName: ${repoName,,}
+RegistryDomain: ${registryDomain,,}
+RegistryName: ${repoOwner,,}
+EOF
+
+git rm -r '*'
+boilerplate --non-interactive \
+  --template-url "$NEW_PATH"/project-template \
+  --output-folder . \
+  --var-file "$NEW_PATH"/boilerplate-values.yml
+
+git add -A
+set +e
+pre-commit run -a
 set -e
+git add -A
 
 git config user.email "kratix@bots.github.com"
 git config user.name "Kratix Bot"
