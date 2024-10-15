@@ -125,10 +125,10 @@ registryCicdSecretRef=$(echo "$regInfoJson" | jq -r '.registry_cicd_secret_ref')
 registryUsername=$(echo "$regInfoJson" | jq -r '.registry_username')
 registryDomain=$(echo "$regInfoJson" | jq -r '.registry_domain')
 
-NEW_PATH=/tmp/repo
+NEW_PATH=/tmp/boilerplate
 mkdir $NEW_PATH
-cp -a .git/ /$NEW_PATH
-cat >boilerplate-values.yml <<EOF
+cp -a project-template/ /$NEW_PATH/
+cat >/$NEW_PATH/boilerplate-values.yml <<EOF
 BackstageEntityOwner: $backstageEntityOwner
 BackstageEntityLifecycle: $backstageEntityLifecycle
 ProjectName: ${repoName,,}
@@ -137,12 +137,13 @@ ImageName: ${repoName,,}
 RegistryDomain: ${registryDomain,,}
 RegistryName: ${repoOwner,,}
 EOF
-boilerplate --non-interactive \
-  --template-url project-template \
-  --output-folder $NEW_PATH \
-  --var-file boilerplate-values.yml
 
-cd $NEW_PATH
+git rm -r '*'
+boilerplate --non-interactive \
+  --template-url /$NEW_PATH/project-template \
+  --output-folder . \
+  --var-file /$NEW_PATH/boilerplate-values.yml
+
 git add -A
 set +e
 pre-commit run -a
