@@ -22,29 +22,29 @@ workflows:
       - architect/push-to-registries:
           context: architect
           name: build-github-cli-clone-template-repo
-          image: giantswarm/github-cli-clone-template-repo-promise
+          image: giantswarm/github-cli-clone-template-repo-pipeline
           dockerfile: ./github-template-repo-promise/containers/github-cli-clone-template-repo-pipeline/Dockerfile
-          git-tag-prefix: github-cli-clone-template-repo-promise
+          git-tag-prefix: github-cli-clone-template-repo-pipeline
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
           filters:
             tags:
-              only: "/^github-cli-clone-template-repo-promise.*/"
+              only: "/^github-cli-clone-template-repo-pipeline.*/"
             branches:
               ignore: "main"
       - architect/push-to-registries:
           context: architect
           name: build-github-cli-template-values
-          image: giantswarm/github-cli-template-values-promise
+          image: giantswarm/github-cli-template-values-pipeline
           dockerfile: ./github-template-repo-promise/containers/github-cli-template-values-pipeline/Dockerfile
-          git-tag-prefix: github-cli-template-values-promise
+          git-tag-prefix: github-cli-template-values-pipeline
           build-context: ./github-template-repo-promise/containers
           registries-data: |-
             public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
           filters:
             tags:
-              only: "/^github-cli-template-values-promise.*/"
+              only: "/^github-cli-template-values-pipeline.*/"
             branches:
               ignore: "main"
       - execute-tests-github-template-repo-promise:
