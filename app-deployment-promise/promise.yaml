@@ -249,7 +249,7 @@ spec:
           spec:
             containers:
               - name: crossplane-provisioner
-                image: gsoci.azurecr.io/giantswarm/provision-infrastructure-pipeline:v1.0.0
+                image: gsoci.azurecr.io/giantswarm/provision-infrastructure-pipeline:1.0.0
                 imagePullPolicy: IfNotPresent
         - apiVersion: platform.kratix.io/v1alpha1
           kind: Pipeline
@@ -261,7 +261,7 @@ spec:
               #                image: gsoci.azurecr.io/giantswarm/check-if-infra-ready-pipeline
               #                imagePullPolicy: Always
               - name: template-values
-                image: gsoci.azurecr.io/giantswarm/appdeployment-template-pipeline:v1.0.0
+                image: gsoci.azurecr.io/giantswarm/appdeployment-template-pipeline:1.0.0
                 imagePullPolicy: IfNotPresent
             rbac:
               permissions:

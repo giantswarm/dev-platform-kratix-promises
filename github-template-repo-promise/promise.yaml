@@ -126,10 +126,10 @@ spec:
                 emptyDir: {}
             containers:
               - name: github-cli-clone-template-repo-pipeline
-                image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline:v1.0.0
+                image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline:1.0.0
                 imagePullPolicy: IfNotPresent
               - name: github-cli-template-values-pipeline
-                image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline:v1.1.0
+                image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline:1.1.0
                 imagePullPolicy: IfNotPresent
                 volumeMount:
                   - name: repo
