@@ -1,0 +1,21 @@
+version: 2.1
+orbs:
+  architect: giantswarm/architect@5.10.1
+
+workflows:
+  build-kratix-base-cli:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-kratix-base-cli
+          image: giantswarm/kratix-base-cli
+          dockerfile: ./kratix-base-cli/Dockerfile
+          git-tag-prefix: kratix-base-cli
+          build-context: ./kratix-base-cli/
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: "/^kratix-base-cli.*/"
+            branches:
+              ignore: "main"

@@ -1,0 +1,21 @@
+version: 2.1
+orbs:
+  architect: giantswarm/architect@5.10.1
+
+workflows:
+  build-kratix-github-cli:
+    jobs:
+      - architect/push-to-registries:
+          context: architect
+          name: build-kratix-github-cli
+          image: giantswarm/kratix-github-cli
+          dockerfile: ./kratix-github-cli/Dockerfile
+          git-tag-prefix: kratix-github-cli
+          build-context: ./kratix-github-cli/
+          registries-data: |-
+            public gsoci.azurecr.io ACR_GSOCI_USERNAME ACR_GSOCI_PASSWORD true
+          filters:
+            tags:
+              only: "/^kratix-github-cli.*/"
+            branches:
+              ignore: "main"
