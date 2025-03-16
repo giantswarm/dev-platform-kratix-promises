@@ -1,4 +1,4 @@
-FROM gsoci.azurecr.io/giantswarm/kratix-github-cli:0.1.0
+FROM gsoci.azurecr.io/giantswarm/kratix-github-cli:0.1.1
 USER root
 RUN apk update && apk add --no-cache pre-commit=3.7.1-r0 curl=8.10.1-r0 npm=10.8.0-r0
 RUN curl -fsSL https://github.com/gruntwork-io/boilerplate/releases/latest/download/boilerplate_linux_amd64 -o /usr/local/bin/boilerplate && chmod +x /usr/local/bin/boilerplate
