@@ -3,55 +3,67 @@
 ### TESTING BLOCK ###
 
 function mock_kubectl() {
-  if [[ "$5" == "noconfigmap" ]]; then
-    echo "Error from server: configmap not found"
-    return 1
-  fi
-  if [[ "$3" == "get" && "$4" == "cm" ]]; then
-    echo "{"
-    echo '"registry_domain": "ghcr.io",'
-    echo '"registry_username": "build_bot",'
-    echo '"registry_cicd_secret_ref": "GITHUB_TOKEN",'
-    echo '"registry_pull_secret_name": "ghcr-pull-secret"'
-    echo "}"
-    return 0
-  fi
-  echo "IN TEST: kubectl $*"
+	if [[ "$5" == "noconfigmap" ]]; then
+		echo "Error from server: configmap not found"
+		return 1
+	fi
+	if [[ "$3" == "get" && "$4" == "cm" ]]; then
+		echo "{"
+		echo '"registry_domain": "ghcr.io",'
+		echo '"registry_username": "build_bot",'
+		echo '"registry_cicd_secret_ref": "GITHUB_TOKEN",'
+		echo '"registry_pull_secret_name": "ghcr-pull-secret"'
+		echo "}"
+		return 0
+	fi
+	if [[ $1 == "get" && $2 == "secret" && $3 == "github-create-repo-token" ]]; then
+		echo '{"appID":"dGVzdAo=","installationID":"dGVzdAo=","privateKey":"dGVzdAo="}'
+		return 0
+	fi
+	echo "IN TEST: kubectl $*"
 }
 function mock_gh() {
-  if [[ $1 == "repo" && $2 == "view" ]]; then
-    if [[ "$repoOwner" == "littleswarm" ]]; then
-      return 1
-    fi
-    if [[ "$repoOwner" == "batman" ]]; then
-      repoVisibility="SECRET"
-    fi
-    echo "{\"name\":\"$repoName\",\"owner\":{\"id\":\"XYZ123=\",\"login\":\"$repoOwner\"},\"visibility\":\"$repoVisibility\"}"
-    return 0
-  fi
-  if [[ $1 == "repo" && $2 == "create" ]]; then
-    echo "TEST: gh repo create -d \"$repoDesc\" --$repoVisibility -p \"$repoSource\" \"$repoOwner/$repoName\""
-    return 0
-  fi
+	if [[ $1 == "repo" && $2 == "view" ]]; then
+		if [[ "$repoOwner" == "littleswarm" ]]; then
+			return 1
+		fi
+		if [[ "$repoOwner" == "batman" ]]; then
+			repoVisibility="SECRET"
+		fi
+		echo "{\"name\":\"$repoName\",\"owner\":{\"id\":\"XYZ123=\",\"login\":\"$repoOwner\"},\"visibility\":\"$repoVisibility\"}"
+		return 0
+	fi
+	if [[ $1 == "repo" && $2 == "create" ]]; then
+		echo "TEST: gh repo create -d \"$repoDesc\" --$repoVisibility -p \"$repoSource\" \"$repoOwner/$repoName\""
+		return 0
+	fi
 }
 function mock_git() {
-  if [[ $1 == "log" && "$repoOwner" == "alreadyexists" ]]; then
-    echo "Initial commit: fill in template values"
-  fi
-  return 0
+	if [[ $1 == "log" && "$repoOwner" == "alreadyexists" ]]; then
+		echo "Initial commit: fill in template values"
+	fi
+	return 0
 }
 function mock_base64() {
-  echo "$1"
+	echo "$1"
+}
+function mock_cp() {
+	echo "IN TEST: cp $*"
+}
+function mock_boilerplate() {
+	echo "IN TEST: boilerplate $*"
 }
 function setup_mocks() {
-  echo "Setting up mock tools"
-  shopt -s expand_aliases
-  alias kubectl=mock_kubectl
-  alias gh=mock_gh
-  alias git=mock_git
-  alias base64=mock_base64
-  alias cd=true
-  alias find=true
+	echo "Setting up mock tools"
+	shopt -s expand_aliases
+	alias kubectl=mock_kubectl
+	alias gh=mock_gh
+	alias git=mock_git
+	alias base64=mock_base64
+	alias cd=true
+	alias find=true
+	alias cp=mock_cp
+	alias boilerplate=mock_boilerplate
 }
 
 ### IMPLEMENTATION BLOCK ###
@@ -60,30 +72,30 @@ GIT_LOG_INIT_MESSAGE="Initial commit: fill in template values"
 REPO_PROVIDER="github"
 
 if [[ -n "$TEST_RUN" ]]; then
-  setup_mocks
+	setup_mocks
 fi
 
 function write_repo_info() {
-  cp /files/* /kratix/output/
-  sed -i "s/<objName>/${objName}/" /kratix/output/*.yaml
-  sed -i "s/<objNamespace>/${objNamespace}/" /kratix/output/*.yaml
-  sed -i "s/<repoName>/${repoName}/" /kratix/output/*.yaml
-  sed -i "s/<repoOwner>/${repoOwner}/" /kratix/output/*.yaml
-  sed -i "s/<repoVisibility>/${repoVisibility}/" /kratix/output/*.yaml
-  sed -i "s/<repoProvider>/${REPO_PROVIDER}/" /kratix/output/*.yaml
-  sed -i "s/<regInfoConfigMapName>/${regInfoCmName}/" /kratix/output/*.yaml
+	cp /files/* /kratix/output/
+	sed -i "s/<objName>/${objName}/" /kratix/output/*.yaml
+	sed -i "s/<objNamespace>/${objNamespace}/" /kratix/output/*.yaml
+	sed -i "s/<repoName>/${repoName}/" /kratix/output/*.yaml
+	sed -i "s/<repoOwner>/${repoOwner}/" /kratix/output/*.yaml
+	sed -i "s/<repoVisibility>/${repoVisibility}/" /kratix/output/*.yaml
+	sed -i "s/<repoProvider>/${REPO_PROVIDER}/" /kratix/output/*.yaml
+	sed -i "s/<regInfoConfigMapName>/${regInfoCmName}/" /kratix/output/*.yaml
 
-  if [[ "$repoVisibility" != "public" ]]; then
-    registryPullSecretName=$(echo "$regInfoJson" | jq -r '.registry_pull_secret_name')
-    if [[ -z "$registryPullSecretName" ]]; then
-      write_metadata_message "Error: registry_pull_secret_name not set in ConfigMap '$regInfoCmNamespace/$regInfoCmName'"
-      echo "Error: registry_pull_secret_name not set in ConfigMap '$regInfoCmNamespace/$regInfoCmName'"
-      exit 5
-    fi
-    yq -i ".spec.secretRef.name = \"$registryPullSecretName\"" /kratix/output/helmrepository.yaml
-  fi
+	if [[ "$repoVisibility" != "public" ]]; then
+		registryPullSecretName=$(echo "$regInfoJson" | jq -r '.registry_pull_secret_name')
+		if [[ -z "$registryPullSecretName" ]]; then
+			write_metadata_message "Error: registry_pull_secret_name not set in ConfigMap '$regInfoCmNamespace/$regInfoCmName'"
+			echo "Error: registry_pull_secret_name not set in ConfigMap '$regInfoCmNamespace/$regInfoCmName'"
+			exit 5
+		fi
+		yq -i ".spec.secretRef.name = \"$registryPullSecretName\"" /kratix/output/helmrepository.yaml
+	fi
 
-  write_metadata_message "Repository '$repoOwner/$repoName' ready."
+	write_metadata_message "Repository '$repoOwner/$repoName' ready."
 }
 
 . ../_shared/common.sh
@@ -95,17 +107,17 @@ set +e
 # check if the registry info configmap exists and load it
 regInfoJson=$(kubectl -n "$regInfoCmNamespace" get cm "$regInfoCmName" -o jsonpath='{.data}')
 if [[ $? != 0 ]]; then
-  write_metadata_message "Error: Container registry information failed to load from the ConfigMap '$regInfoCmNamespace/$regInfoCmName'."
-  echo "Error: Container registry information failed to load from the ConfigMap '$regInfoCmNamespace/$regInfoCmName'."
-  exit 4
+	write_metadata_message "Error: Container registry information failed to load from the ConfigMap '$regInfoCmNamespace/$regInfoCmName'."
+	echo "Error: Container registry information failed to load from the ConfigMap '$regInfoCmNamespace/$regInfoCmName'."
+	exit 4
 fi
 set -e
 
 # TODO: try to make this step 'gh' independent, so we can use it with other git providers
 if ! load_gh_repo_view; then
-  write_metadata_message "Error: repository ${repoOwner}/${repoName} does not exist."
-  echo "Error: repository ${repoOwner}/${repoName} does not exist."
-  exit 3
+	write_metadata_message "Error: repository ${repoOwner}/${repoName} does not exist."
+	echo "Error: repository ${repoOwner}/${repoName} does not exist."
+	exit 3
 fi
 
 cd /tmp
@@ -116,9 +128,9 @@ cd "$repoName"
 
 git_out=$(git log --grep "^${GIT_LOG_INIT_MESSAGE}\$")
 if [[ -n "$git_out" ]]; then
-  write_repo_info
-  echo "Repository '${repoOwner}/${repoName}' already initialized"
-  exit 0
+	write_repo_info
+	echo "Repository '${repoOwner}/${repoName}' already initialized"
+	exit 0
 fi
 
 registryCicdSecretRef=$(echo "$regInfoJson" | jq -r '.registry_cicd_secret_ref')
@@ -140,9 +152,9 @@ EOF
 
 git rm -r '*'
 boilerplate --non-interactive \
-  --template-url "$NEW_PATH"/project-template \
-  --output-folder . \
-  --var-file "$NEW_PATH"/boilerplate-values.yml
+	--template-url "$NEW_PATH"/project-template \
+	--output-folder . \
+	--var-file "$NEW_PATH"/boilerplate-values.yml
 
 git add -A
 set +e
