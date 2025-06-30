@@ -82,7 +82,7 @@ function load_gh_token() {
     fi
 
     # perform cli app auth flow to get token
-    token=$(gh token generate --key "$tmpKeyPath" --app-id "$appID" --installation-id "$installationID" -t)
+    token=$(gh-token generate --key "$tmpKeyPath" --app-id "$appID" --installation-id "$installationID" -t)
     echo "GitHub access token created with app auth workflow"
     GH_TOKEN=$token
   else
