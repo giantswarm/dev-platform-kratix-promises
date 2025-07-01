@@ -25,11 +25,19 @@ function mock_gh() {
     return 0
   fi
 }
+function mock_gh_token() {
+  if [[ $1 == "github-create-repo-token" ]]; then
+    echo "dGVzdAo="
+    return 0
+  fi
+  echo "IN TEST: gh token $*"
+}
 function setup_mocks() {
   echo "Setting up mock tools"
   shopt -s expand_aliases
   alias kubectl=mock_kubectl
   alias gh=mock_gh
+  alias gh-token=mock_gh_token
 }
 
 ### IMPLEMENTATION BLOCK ###

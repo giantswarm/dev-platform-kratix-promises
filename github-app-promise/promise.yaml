@@ -5,12 +5,12 @@ kind: Promise
 metadata:
   name: githubapp
   labels:
-    kratix.io/promise-version: v0.0.3
+    kratix.io/promise-version: v0.0.4
   namespace: default
 spec:
   requiredPromises:
     - name: githubrepo
-      version: v0.0.2
+      version: v0.0.3
     - name: appdeployment
       version: v0.0.3
   api:
@@ -115,7 +115,7 @@ spec:
                                   type: string
                             registryInfoConfigMapRef:
                               description: >-
-                                The name and namespace of a ConfigMap that has keys named "registry_domain",  "registry_username" and "registry_cicd_secret_ref" that configure access to  the image registry in the CICD GitHib Action.
+                                The name and namespace of a ConfigMap that has keys named "registry_domain", "registry_username" and "registry_cicd_secret_ref" that configure access to  the image registry in the CICD GitHib Action.
                               required:
                                 - name
                               type: object

@@ -4,7 +4,7 @@ kind: Promise
 metadata:
   name: githubrepo
   labels:
-    kratix.io/promise-version: v0.0.2
+    kratix.io/promise-version: v0.0.3
   namespace: default
 spec:
   api:
@@ -78,8 +78,8 @@ spec:
                           type: string
                     githubTokenSecretRef:
                       description: >-
-                        The name and namespace of a Secret that has a key named "gh_token" with value if a GitHub
-                        authentication token used to create a new repository.
+                        The name and namespace of a Secret that has a key named "gh_token" with value if a
+                        GitHub authentication token used to create a new repository.
                       required:
                         - name
                       type: object
@@ -92,9 +92,9 @@ spec:
                           type: string
                     registryInfoConfigMapRef:
                       description: >-
-                        The name and namespace of a ConfigMap that has keys named "registry_domain", 
-                        "registry_username" and "registry_cicd_secret_ref" that configure access to 
-                        the image registry in the CICD GitHib Action.
+                        The name and namespace of a ConfigMap that has keys named "registry_domain",
+                        "registry_username" and "registry_cicd_secret_ref" that configure access to  the image
+                        registry in the CICD GitHib Action.
                       required:
                         - name
                       type: object
@@ -126,10 +126,10 @@ spec:
                 emptyDir: {}
             containers:
               - name: github-cli-clone-template-repo-pipeline
-                image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline:1.0.0
+                image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline:1.1.0
                 imagePullPolicy: IfNotPresent
               - name: github-cli-template-values-pipeline
-                image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline:1.1.0
+                image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline:1.2.0
                 imagePullPolicy: IfNotPresent
                 volumeMount:
                   - name: repo

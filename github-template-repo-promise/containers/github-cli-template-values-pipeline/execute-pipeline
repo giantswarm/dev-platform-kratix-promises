@@ -53,6 +53,13 @@ function mock_cp() {
 function mock_boilerplate() {
   echo "IN TEST: boilerplate $*"
 }
+function mock_gh_token() {
+  if [[ $1 == "github-create-repo-token" ]]; then
+    echo "dGVzdAo="
+    return 0
+  fi
+  echo "IN TEST: gh token $*"
+}
 function setup_mocks() {
   echo "Setting up mock tools"
   shopt -s expand_aliases
@@ -64,6 +71,7 @@ function setup_mocks() {
   alias find=true
   alias cp=mock_cp
   alias boilerplate=mock_boilerplate
+  alias gh-token=mock_gh_token
 }
 
 ### IMPLEMENTATION BLOCK ###
