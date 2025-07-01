@@ -3,39 +3,47 @@
 ### TESTING BLOCK ###
 
 function mock_kubectl() {
-  if [[ $1 == "get" && $2 == "secret" && $3 == "github-create-repo-token" ]]; then
-    echo '{"appID":"dGVzdAo=","installationID":"dGVzdAo=","privateKey":"dGVzdAo="}'
-  else
-    echo "IN TEST: kubectl $*"
-  fi
+	if [[ $1 == "get" && $2 == "secret" && $3 == "github-create-repo-token" ]]; then
+		echo '{"appID":"dGVzdAo=","installationID":"dGVzdAo=","privateKey":"dGVzdAo="}'
+	else
+		echo "IN TEST: kubectl $*"
+	fi
 }
 function mock_gh() {
-  if [[ $1 == "repo" && $2 == "view" ]]; then
-    if [[ "$repoOwner" == "littleswarm" ]]; then
-      return 1
-    fi
-    if [[ "$repoOwner" == "batman" ]]; then
-      repoVisibility="SECRET"
-    fi
-    echo "{\"name\":\"$repoName\",\"owner\":{\"id\":\"XYZ123=\",\"login\":\"$repoOwner\"},\"visibility\":\"$repoVisibility\"}"
-    return 0
-  fi
-  if [[ $1 == "repo" && $2 == "create" ]]; then
-    echo "TEST: gh repo create -d \"$repoDesc\" --$repoVisibility -p \"$repoSource\" \"$repoOwner/$repoName\""
-    return 0
-  fi
+	if [[ $1 == "repo" && $2 == "view" ]]; then
+		if [[ "$repoOwner" == "littleswarm" ]]; then
+			return 1
+		fi
+		if [[ "$repoOwner" == "batman" ]]; then
+			repoVisibility="SECRET"
+		fi
+		echo "{\"name\":\"$repoName\",\"owner\":{\"id\":\"XYZ123=\",\"login\":\"$repoOwner\"},\"visibility\":\"$repoVisibility\"}"
+		return 0
+	fi
+	if [[ $1 == "repo" && $2 == "create" ]]; then
+		echo "TEST: gh repo create -d \"$repoDesc\" --$repoVisibility -p \"$repoSource\" \"$repoOwner/$repoName\""
+		return 0
+	fi
+}
+function mock_gh_token() {
+	if [[ $1 == "github-create-repo-token" ]]; then
+		echo "dGVzdAo="
+		return 0
+	fi
+	echo "IN TEST: gh token $*"
 }
 function setup_mocks() {
-  echo "Setting up mock tools"
-  shopt -s expand_aliases
-  alias kubectl=mock_kubectl
-  alias gh=mock_gh
+	echo "Setting up mock tools"
+	shopt -s expand_aliases
+	alias kubectl=mock_kubectl
+	alias gh=mock_gh
+	alias gh-token=mock_gh_token
 }
 
 ### IMPLEMENTATION BLOCK ###
 
 if [[ -n "$TEST_RUN" ]]; then
-  setup_mocks
+	setup_mocks
 fi
 
 . ../_shared/common.sh
@@ -46,20 +54,20 @@ load_gh_token
 
 # check if the repo already exists
 if ! load_gh_repo_view; then
-  echo "Repository ${repoOwner}/${repoName} does not exist. Creating it..."
-  gh repo create -d "$repoDesc" "--${repoVisibility}" -p "${repoSource}" "$repoOwner/$repoName"
-  write_metadata_message "Repository '$repoOwner/$repoName' created, moving to initialization..."
-  exit 0
+	echo "Repository ${repoOwner}/${repoName} does not exist. Creating it..."
+	gh repo create -d "$repoDesc" "--${repoVisibility}" -p "${repoSource}" "$repoOwner/$repoName"
+	write_metadata_message "Repository '$repoOwner/$repoName' created, moving to initialization..."
+	exit 0
 fi
 
 if [[ "$loadedRepoName" != "$repoName" ||
-  "$loadedRepoOwner" != "$repoOwner" ||
-  "$loadedRepoVisibility" != "$repoVisibility" ]]; then
-  echo "Repository ${repoOwner}/${repoName} already exists but with different properties."
-  echo "Exisitng properties: owner: '$loadedRepoOwner', name: '$loadedRepoName', visibility: $loadedRepoVisibility'"
-  echo "Exiting..."
-  write_metadata_message "Repository '$repoOwner/$repoName' already exists. I refuse to edit an existing repository's properties."
-  exit 3
+	"$loadedRepoOwner" != "$repoOwner" ||
+	"$loadedRepoVisibility" != "$repoVisibility" ]]; then
+	echo "Repository ${repoOwner}/${repoName} already exists but with different properties."
+	echo "Exisitng properties: owner: '$loadedRepoOwner', name: '$loadedRepoName', visibility: $loadedRepoVisibility'"
+	echo "Exiting..."
+	write_metadata_message "Repository '$repoOwner/$repoName' already exists. I refuse to edit an existing repository's properties."
+	exit 3
 fi
 echo "Repository ${repoOwner}/${repoName} already exists with the correct properties"
 write_metadata_message "Repository '${repoOwner}/${repoName}' already exists with the correct properties"
