@@ -5,12 +5,12 @@ kind: Promise
 metadata:
   name: githubapp
   labels:
-    kratix.io/promise-version: v0.0.3
+    kratix.io/promise-version: v0.0.4
   namespace: default
 spec:
   requiredPromises:
     - name: githubrepo
-      version: v0.0.2
+      version: v0.0.3
     - name: appdeployment
       version: v0.0.3
   api:
@@ -91,7 +91,8 @@ spec:
                                   description: A description of the new repository.
                                   type: string
                                 templateSource:
-                                  description: A full name (`user/repository`) of a GitHub template repository to use.
+                                  description:
+                                    A full name (`user/repository`) of a GitHub template repository to use.
                                   type: string
                                 visibility:
                                   description: Visibility of the created repo.
@@ -102,7 +103,8 @@ spec:
                                   type: string
                             githubTokenSecretRef:
                               description: >-
-                                The name and namespace of a Secret that has a key named "gh_token" with value if a GitHub authentication token used to create a new repository.
+                                The name and namespace of a Secret that has a key named "gh_token" with value
+                                if a GitHub authentication token used to create a new repository.
                               required:
                                 - name
                               type: object
@@ -115,7 +117,9 @@ spec:
                                   type: string
                             registryInfoConfigMapRef:
                               description: >-
-                                The name and namespace of a ConfigMap that has keys named "registry_domain",  "registry_username" and "registry_cicd_secret_ref" that configure access to  the image registry in the CICD GitHib Action.
+                                The name and namespace of a ConfigMap that has keys named
+                                "registry_domain",  "registry_username" and "registry_cicd_secret_ref" that
+                                configure access to  the image registry in the CICD GitHib Action.
                               required:
                                 - name
                               type: object
@@ -140,7 +144,9 @@ spec:
                           required:
                             - database
                             - interval
-                          description: AppDeploymentSpec defines the desired state of a Helm release and Logical Database.
+                          description:
+                            AppDeploymentSpec defines the desired state of a Helm release and Logical
+                            Database.
                           properties:
                             database:
                               description: Logical database related information.
@@ -160,7 +166,9 @@ spec:
                                     - clusterSsaField
                                   properties:
                                     clusterSsaField:
-                                      description: Field name that indicates the database cluster being ready in the Flux SSA secret.
+                                      description:
+                                        Field name that indicates the database cluster being ready in the Flux
+                                        SSA secret.
                                       type: string
                                     tenantCluster:
                                       description: Tenant cluster related configuration.
@@ -183,7 +191,9 @@ spec:
                                     - name
                                   properties:
                                     name:
-                                      description: Name of the provider config reference object for the given database engine.
+                                      description:
+                                        Name of the provider config reference object for the given database
+                                        engine.
                                       type: string
                             dependsOn:
                               description: |-
@@ -199,7 +209,9 @@ spec:
                                     description: Name of the referent.
                                     type: string
                                   namespace:
-                                    description: Namespace of the referent, when not specified it acts as LocalObjectReference.
+                                    description:
+                                      Namespace of the referent, when not specified it acts as
+                                      LocalObjectReference.
                                     type: string
                                 required:
                                   - name
@@ -235,7 +247,9 @@ spec:
                                     Kubernetes resources.
                                   properties:
                                     key:
-                                      description: Key in the Secret, when not specified an implementation-specific default key is used.
+                                      description:
+                                        Key in the Secret, when not specified an implementation-specific
+                                        default key is used.
                                       type: string
                                     name:
                                       description: Name of the Secret.
@@ -247,16 +261,22 @@ spec:
                                 - secretRef
                               type: object
                             serviceAccountName:
-                              description: "The name of the Kubernetes service account to impersonate when reconciling this HelmRelease."
+                              description:
+                                "The name of the Kubernetes service account to impersonate when reconciling
+                                this HelmRelease."
                               type: string
                             releaseName:
                               description: "ReleaseName used for the Helm release."
                               type: string
                             storageNamespace:
-                              description: "TargetNamespace to target when performing operations for the HelmRelease. Defaults to the namespace of the HelmRelease."
+                              description:
+                                "TargetNamespace to target when performing operations for the HelmRelease.
+                                Defaults to the namespace of the HelmRelease."
                               type: string
                             targetNamespace:
-                              description: "StorageNamespace used for the Helm storage. Defaults to the namespace of the HelmRelease."
+                              description:
+                                "StorageNamespace used for the Helm storage. Defaults to the namespace of the
+                                HelmRelease."
                               type: string
                             suspend:
                               description: |-
@@ -282,7 +302,8 @@ spec:
                                   and optionally the key they can be found at.
                                 properties:
                                   kind:
-                                    description: Kind of the values referent, valid values are ('Secret', 'ConfigMap').
+                                    description:
+                                      Kind of the values referent, valid values are ('Secret', 'ConfigMap').
                                     enum:
                                       - Secret
                                       - ConfigMap
