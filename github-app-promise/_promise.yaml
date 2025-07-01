@@ -5,12 +5,12 @@ kind: Promise
 metadata:
   name: githubapp
   labels:
-    kratix.io/promise-version: v0.0.3
+    kratix.io/promise-version: v0.0.4
   namespace: default
 spec:
   requiredPromises:
     - name: githubrepo
-      version: v0.0.2
+      version: v0.0.3
     - name: appdeployment
       version: v0.0.3
   api:
@@ -74,5 +74,5 @@ spec:
           spec:
             containers:
               - name: template-requests
-                image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline
+                image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline:1.0.0
                 imagePullPolicy: IfNotPresent

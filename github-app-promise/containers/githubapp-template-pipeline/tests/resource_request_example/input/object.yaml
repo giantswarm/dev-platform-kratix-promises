@@ -18,7 +18,7 @@ spec:
       registryInfoConfigMapRef:
         name: github-oci-registry-info
       githubTokenSecretRef:
-        name: dev-platform-gh-access
+        name: github-create-repo-token
   appDeployment:
     name: my-go-project-dev
     spec:
