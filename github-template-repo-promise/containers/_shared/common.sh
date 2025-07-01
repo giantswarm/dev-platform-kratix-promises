@@ -54,17 +54,36 @@ function load_kratix_input() {
 }
 
 function load_gh_token() {
-  TOKEN_KEY=gh_token
   if [[ -z "$GH_TOKEN" ]]; then
     # load github token from secret
-    echo "GitHub token not set in \$GH_TOKEN environment variable. Trying to load from the configured Secret."
-    token=$(kubectl get secret "$tokenName" -n "$tokenNamespace" -o jsonpath="{.data.$TOKEN_KEY}")
-    if [[ -z "$token" ]]; then
-      echo "Couldn't load GitHub access token from secret \"$tokenName\" in namespace \"$tokenNamespace\" with key \"$TOKEN_KEY\""
+    echo "GitHub token not set in \$GH_TOKEN environment variable. Trying to load app auth data from the configured Secret."
+    kubectl get secret "$tokenName" -n "$tokenNamespace" -o jsonpath="{.data}" >/tmp/data.json
+    if [[ ! -s "/tmp/data.json" ]]; then
+      echo "Couldn't load GitHub app auth info from secret \"$tokenName\" in namespace \"$tokenNamespace\"."
       exit 2
     fi
-    token=$(echo "$token" | base64 -d)
-    echo "GitHub access token loaded from secret \"$tokenName\" in namespace \"$tokenNamespace\""
+
+    # load app auth secrets
+    tmpKeyPath=/tmp/key.pem
+    appID=$(jq -r '.appID' /tmp/data.json | base64 -d -w0)
+    if [[ -z "$appID" ]]; then
+      echo "Couldn't load appID from the fetched secret data."
+      exit 3
+    fi
+    installationID=$(jq -r '.installationID' /tmp/data.json | base64 -d -w0)
+    if [[ -z "$installationID" ]]; then
+      echo "Couldn't load installationID from the fetched secret data."
+      exit 3
+    fi
+    jq -r '.privateKey' /tmp/data.json | base64 -d -w0 >"$tmpKeyPath"
+    if [[ ! -s $tmpKeyPath ]]; then
+      echo "Couldn't load privateKey from the fetched secret data."
+      exit 3
+    fi
+
+    # perform cli app auth flow to get token
+    token=$(gh-token generate --key "$tmpKeyPath" --app-id "$appID" --installation-id "$installationID" -t)
+    echo "GitHub access token created with app auth workflow"
     GH_TOKEN=$token
   else
     echo "Environment variable \$GH_TOKEN already set, using existing value"

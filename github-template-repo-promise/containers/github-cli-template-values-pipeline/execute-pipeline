@@ -16,6 +16,10 @@ function mock_kubectl() {
     echo "}"
     return 0
   fi
+  if [[ $1 == "get" && $2 == "secret" && $3 == "github-create-repo-token" ]]; then
+    echo '{"appID":"dGVzdAo=","installationID":"dGVzdAo=","privateKey":"dGVzdAo="}'
+    return 0
+  fi
   echo "IN TEST: kubectl $*"
 }
 function mock_gh() {
@@ -43,6 +47,12 @@ function mock_git() {
 function mock_base64() {
   echo "$1"
 }
+function mock_cp() {
+  echo "IN TEST: cp $*"
+}
+function mock_boilerplate() {
+  echo "IN TEST: boilerplate $*"
+}
 function setup_mocks() {
   echo "Setting up mock tools"
   shopt -s expand_aliases
@@ -52,6 +62,8 @@ function setup_mocks() {
   alias base64=mock_base64
   alias cd=true
   alias find=true
+  alias cp=mock_cp
+  alias boilerplate=mock_boilerplate
 }
 
 ### IMPLEMENTATION BLOCK ###
