@@ -36,4 +36,4 @@ permissions:
 
 jobs:
   validate-changelog:
-    uses: giantswarm/github-workflows/.github/workflows/validate-changelog.yaml@3681e34c08ca044821ef7c1c037cf8b859194777
+    uses: giantswarm/github-workflows/.github/workflows/validate-changelog.yaml@5793c5821f2ae0cc5ca0e26cacdeac69f0facd62
