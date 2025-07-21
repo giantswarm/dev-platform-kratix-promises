@@ -1,0 +1,130 @@
+package server
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+
+	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/clients"
+	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/config"
+	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/resources"
+	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/mark3labs/mcp-go/server"
+)
+
+// Server wraps the MCP server with our configuration
+type Server struct {
+	config    *config.Config
+	mcpServer *server.MCPServer
+	k8sClient *clients.KubernetesClient
+	logger    *slog.Logger
+}
+
+// New creates a new MCP server instance
+func New(cfg *config.Config) *Server {
+	logger := slog.Default().With("component", "mcp-server")
+
+	return &Server{
+		config: cfg,
+		logger: logger,
+	}
+}
+
+// Initialize sets up the MCP server with tools, resources, and prompts
+func (s *Server) Initialize() error {
+	s.logger.Info("Initializing MCP server",
+		"app_name", s.config.AppName,
+		"version", s.config.AppVersion)
+
+	// Create the MCP server with resource capabilities enabled
+	mcpServer := server.NewMCPServer(
+		s.config.AppName,
+		s.config.AppVersion,
+		server.WithResourceCapabilities(false, false), // subscribe=false, listChanged=false for now
+	)
+
+	// Initialize Kubernetes client
+	k8sClient, err := clients.NewKubernetesClient(s.config)
+	if err != nil {
+		s.logger.Error("Failed to initialize Kubernetes client", "error", err)
+		return fmt.Errorf("failed to initialize Kubernetes client: %w", err)
+	}
+	s.k8sClient = k8sClient
+
+	// Create CRD resource handler
+	resourceHandler := resources.NewCRDResourceHandler(k8sClient)
+
+	// Register MCP resources for Giant Swarm CRDs
+	s.registerResources(mcpServer, resourceHandler)
+
+	// TODO: In the future, we'll register tools here for:
+	// - Kubernetes API interactions
+	// - GitHub repository operations
+	// - IDP platform specific operations
+
+	s.logger.Info("MCP server initialized with Kubernetes CRD resources",
+		"context", k8sClient.GetCurrentContext())
+
+	s.mcpServer = mcpServer
+	return nil
+}
+
+// registerResources registers all MCP resources with the server
+func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler *resources.CRDResourceHandler) {
+	// Register AppDeployment resources
+	appDeploymentResource := mcp.NewResource(
+		"k8s://appdeployments",
+		"App Deployments",
+		mcp.WithResourceDescription("Giant Swarm application deployment resources"),
+		mcp.WithMIMEType("application/json"),
+	)
+	mcpServer.AddResource(appDeploymentResource, resourceHandler.HandleAppDeployments)
+
+	// Register GitHubApp resources
+	githubAppResource := mcp.NewResource(
+		"k8s://githubapps",
+		"GitHub Apps",
+		mcp.WithResourceDescription("Giant Swarm GitHub application resources"),
+		mcp.WithMIMEType("application/json"),
+	)
+	mcpServer.AddResource(githubAppResource, resourceHandler.HandleGitHubApps)
+
+	// Register GitHubRepo resources
+	githubRepoResource := mcp.NewResource(
+		"k8s://githubrepos",
+		"GitHub Repositories",
+		mcp.WithResourceDescription("Giant Swarm GitHub repository resources"),
+		mcp.WithMIMEType("application/json"),
+	)
+	mcpServer.AddResource(githubRepoResource, resourceHandler.HandleGitHubRepos)
+
+	s.logger.Info("Registered MCP resources",
+		"appDeployments", "k8s://appdeployments",
+		"githubApps", "k8s://githubapps",
+		"githubRepos", "k8s://githubrepos")
+}
+
+// Run starts the MCP server
+func (s *Server) Run(ctx context.Context) error {
+	if s.mcpServer == nil {
+		return fmt.Errorf("server not initialized")
+	}
+
+	s.logger.Info("Starting MCP server", "host", s.config.Host, "port", s.config.Port)
+
+	// Run the server using the correct serve function (this blocks until interrupted)
+	if err := server.ServeStdio(s.mcpServer); err != nil {
+		s.logger.Error("MCP server error", "error", err)
+		return fmt.Errorf("failed to serve MCP server: %w", err)
+	}
+
+	return nil
+}
+
+// Shutdown gracefully shuts down the server
+func (s *Server) Shutdown(ctx context.Context) error {
+	s.logger.Info("Shutting down MCP server")
+
+	// TODO: Add proper shutdown logic when needed
+	return nil
+}
