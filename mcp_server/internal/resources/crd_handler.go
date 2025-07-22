@@ -114,14 +114,7 @@ func (h *CRDResourceHandler) sanitizeResources(resources *unstructured.Unstructu
 func (h *CRDResourceHandler) sanitizeResource(resource *unstructured.Unstructured) {
 	// Remove sensitive secret references and tokens
 	sensitiveFields := [][]string{
-		{"spec", "githubTokenSecretRef"},
-		{"spec", "kubeConfig", "secretRef"},
-		{"spec", "registryInfoConfigMapRef"},
-		{"spec", "database", "passwordSecretRef"},
-		{"spec", "appDeployment", "spec", "githubTokenSecretRef"},
-		{"spec", "appDeployment", "spec", "kubeConfig", "secretRef"},
-		{"spec", "githubRepo", "spec", "githubTokenSecretRef"},
-		{"spec", "githubRepo", "spec", "registryInfoConfigMapRef"},
+		// TODO: Add sensitive fields here
 	}
 
 	for _, fieldPath := range sensitiveFields {
