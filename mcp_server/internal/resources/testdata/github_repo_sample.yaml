@@ -1,0 +1,40 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: githubrepo
+metadata:
+  creationTimestamp: "2025-07-08T08:11:53Z"
+  finalizers:
+  - kratix.io/work-cleanup
+  - kratix.io/workflows-cleanup
+  - kratix.io/delete-workflows
+  generation: 1
+  labels:
+    kratix.io/promise-name: githubrepo
+    kustomize.toolkit.fluxcd.io/name: gazelle-kratix-resources
+    kustomize.toolkit.fluxcd.io/namespace: default
+  name: mygodemo
+  namespace: org-demotech
+  resourceVersion: "1240875393"
+  uid: d5b33cbf-10ae-4be8-972d-8979c2ca0993
+spec:
+  backstageCatalogEntity:
+    lifecycle: experimental
+    owner: team-service-engineering
+  githubTokenSecretRef:
+    name: github-app-secret
+  registryInfoConfigMapRef:
+    name: github-oci-registry-info
+  repository:
+    description: A go service demo
+    name: mygodemo
+    owner: DemoTechInc
+    templateSource: giantswarm/devplatform-template-go-service
+    visibility: private
+status:
+  conditions:
+  - lastTransitionTime: "2025-07-08T08:12:38Z"
+    message: Pipeline completed
+    reason: PipelineExecutedSuccessfully
+    status: "True"
+    type: PipelineCompleted
+  message: Repository 'demotechinc/mygodemo' ready.
+  observedGeneration: 1

@@ -13,12 +13,12 @@ import (
 
 // CRDResourceHandler handles Giant Swarm CRD resources for MCP
 type CRDResourceHandler struct {
-	k8sClient *clients.KubernetesClient
+	k8sClient clients.KubernetesClientInterface
 	logger    *slog.Logger
 }
 
 // NewCRDResourceHandler creates a new CRD resource handler
-func NewCRDResourceHandler(k8sClient *clients.KubernetesClient) *CRDResourceHandler {
+func NewCRDResourceHandler(k8sClient clients.KubernetesClientInterface) *CRDResourceHandler {
 	return &CRDResourceHandler{
 		k8sClient: k8sClient,
 		logger:    slog.Default().With("component", "crd-handler"),
