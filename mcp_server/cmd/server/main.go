@@ -32,8 +32,8 @@ func main() {
 	logger := slog.Default().With("component", "main")
 
 	logger.Info("Starting IDP MCP Server",
-		"app_name", cfg.AppName,
-		"version", cfg.AppVersion,
+		"app_name", config.AppName,
+		"version", config.Version,
 		"log_level", cfg.LogLevel)
 
 	// Create and initialize the server

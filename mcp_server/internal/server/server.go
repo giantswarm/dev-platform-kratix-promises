@@ -33,13 +33,13 @@ func New(cfg *config.Config) *Server {
 // Initialize sets up the MCP server with tools, resources, and prompts
 func (s *Server) Initialize() error {
 	s.logger.Info("Initializing MCP server",
-		"app_name", s.config.AppName,
-		"version", s.config.AppVersion)
+		"app_name", config.AppName,
+		"version", config.Version)
 
 	// Create the MCP server with resource capabilities enabled
 	mcpServer := server.NewMCPServer(
-		s.config.AppName,
-		s.config.AppVersion,
+		config.AppName,
+		config.Version,
 		server.WithResourceCapabilities(false, false), // subscribe=false, listChanged=false for now
 	)
 

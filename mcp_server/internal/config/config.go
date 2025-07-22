@@ -6,6 +6,16 @@ import (
 	"strconv"
 )
 
+const (
+	// AppName is the application name
+	AppName = "idp-mcp-server"
+)
+
+var (
+	// Version is set at build time using -ldflags "-X github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/config.Version=v1.0.0"
+	Version = "dev"
+)
+
 // Config holds all configuration for the MCP server
 type Config struct {
 	// Server configuration
@@ -15,10 +25,6 @@ type Config struct {
 	// Logging configuration
 	LogLevel  string
 	LogFormat string // "json" or "text"
-
-	// Application configuration
-	AppName    string
-	AppVersion string
 
 	// Kubernetes configuration
 	KubeConfigPath string
@@ -33,8 +39,6 @@ func Load() *Config {
 		Port:           getEnvInt("MCP_PORT", 8080),
 		LogLevel:       getEnvString("LOG_LEVEL", "info"),
 		LogFormat:      getEnvString("LOG_FORMAT", "json"),
-		AppName:        getEnvString("APP_NAME", "idp-mcp-server"),
-		AppVersion:     getEnvString("APP_VERSION", "dev"),
 		KubeConfigPath: getEnvString("KUBE_CONFIG_PATH", ""),
 		KubeContext:    getEnvString("KUBE_CONTEXT", ""),
 		K8sTimeout:     getEnvString("K8S_TIMEOUT", "30s"),

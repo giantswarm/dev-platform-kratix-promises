@@ -1,0 +1,66 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: githubapp
+metadata:
+  creationTimestamp: "2025-07-08T08:10:58Z"
+  finalizers:
+  - kratix.io/work-cleanup
+  - kratix.io/workflows-cleanup
+  - kratix.io/delete-workflows
+  generation: 1
+  labels:
+    kratix.io/promise-name: githubapp
+    kustomize.toolkit.fluxcd.io/name: demotech-dev-platform-projects
+    kustomize.toolkit.fluxcd.io/namespace: default
+  name: mygodemo
+  namespace: org-demotech
+  resourceVersion: "1240871924"
+  uid: 44e31d49-0b7d-4e4d-8f8d-47ab824828f4
+spec:
+  appDeployment:
+    name: mygodemo
+    spec:
+      database:
+        engine: aurora-postgresql
+        eso:
+          clusterSsaField: demotech_rcc
+          tenantCluster:
+            apiServerEndpoint: demotech-rds-apiserver-852993111.eu-central-1.elb.amazonaws.com
+            clusterName: demotech-rds
+            enabled: true
+        providerConfigRef:
+          name: demotech-rcc-postgresql-provider-config
+      ingressHost: mygodemo.demotech-rds.awsprod.gigantic.io
+      interval: 1m
+      kubeConfig:
+        secretRef:
+          name: demotech-rds-kubeconfig
+      storageNamespace: default
+      suspend: false
+      targetNamespace: default
+      timeout: 3m
+      version: '>=0.1.0-0'
+  githubRepo:
+    name: mygodemo
+    spec:
+      backstageCatalogEntity:
+        lifecycle: experimental
+        owner: team-service-engineering
+      githubTokenSecretRef:
+        name: github-app-secret
+      registryInfoConfigMapRef:
+        name: github-oci-registry-info
+      repository:
+        description: A go service demo
+        name: mygodemo
+        owner: DemoTechInc
+        templateSource: giantswarm/devplatform-template-go-service
+        visibility: private
+status:
+  conditions:
+  - lastTransitionTime: "2025-07-08T08:11:01Z"
+    message: Pipeline completed
+    reason: PipelineExecutedSuccessfully
+    status: "True"
+    type: PipelineCompleted
+  message: Resource requested
+  observedGeneration: 1

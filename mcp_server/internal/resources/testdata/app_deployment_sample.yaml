@@ -1,0 +1,49 @@
+apiVersion: promise.platform.giantswarm.io/v1beta1
+kind: appdeployment
+metadata:
+  creationTimestamp: "2025-07-08T08:11:53Z"
+  finalizers:
+  - kratix.io/work-cleanup
+  - kratix.io/workflows-cleanup
+  - kratix.io/delete-workflows
+  generation: 1
+  labels:
+    kratix.io/promise-name: appdeployment
+    kustomize.toolkit.fluxcd.io/name: gazelle-kratix-resources
+    kustomize.toolkit.fluxcd.io/namespace: default
+  name: mygodemo
+  namespace: org-demotech
+  resourceVersion: "1240875995"
+  uid: a5a45c57-3b32-4b10-b53e-6dd7371b9260
+spec:
+  database:
+    engine: aurora-postgresql
+    eso:
+      clusterSsaField: demotech_rcc
+      tenantCluster:
+        apiServerEndpoint: demotech-rds-apiserver-852993111.eu-central-1.elb.amazonaws.com
+        clusterName: demotech-rds
+        enabled: true
+    providerConfigRef:
+      name: demotech-rcc-postgresql-provider-config
+  ingressHost: mygodemo.demotech-rds.awsprod.gigantic.io
+  interval: 1m
+  kubeConfig:
+    secretRef:
+      name: demotech-rds-kubeconfig
+  statusConfigMapReference:
+    name: mygodemo-info
+  storageNamespace: default
+  suspend: false
+  targetNamespace: default
+  timeout: 3m
+  version: '>=0.1.0-0'
+status:
+  conditions:
+  - lastTransitionTime: "2025-07-08T08:12:54Z"
+    message: Pipeline completed
+    reason: PipelineExecutedSuccessfully
+    status: "True"
+    type: PipelineCompleted
+  message: HelmRelease object 'org-demotech/mygodemo' successfully created
+  observedGeneration: 1
