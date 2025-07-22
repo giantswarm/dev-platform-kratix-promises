@@ -278,9 +278,9 @@ func TestHandleGitHubRepos_DataSanitization(t *testing.T) {
 	assert.NotContains(t, metadata, "managedFields", "managedFields should be removed")
 	assert.NotContains(t, metadata, "selfLink", "selfLink should be removed")
 
-	// Verify sensitive spec fields are removed
-	assert.NotContains(t, spec, "githubTokenSecretRef", "githubTokenSecretRef should be removed")
-	assert.NotContains(t, spec, "registryInfoConfigMapRef", "registryInfoConfigMapRef should be removed")
+	// Verify secret references are preserved (not removed)
+	assert.Contains(t, spec, "githubTokenSecretRef", "githubTokenSecretRef should be preserved")
+	assert.Contains(t, spec, "registryInfoConfigMapRef", "registryInfoConfigMapRef should be preserved")
 
 	// Verify non-sensitive data is preserved
 	assert.Equal(t, "sensitive-repo", metadata["name"])

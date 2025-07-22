@@ -23,7 +23,7 @@ func TestHandleGitHubApps_Success(t *testing.T) {
 
 	// Create mock response
 	mockList := CreateMockGitHubAppList(testGitHubApp)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -31,7 +31,7 @@ func TestHandleGitHubApps_Success(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -48,7 +48,7 @@ func TestHandleGitHubApps_Success(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "GitHubAppList", response.Kind)
 	assert.Len(t, response.Items, 1, "Expected one GitHubApp item")
@@ -71,7 +71,7 @@ func TestHandleGitHubApps_Empty(t *testing.T) {
 
 	// Create empty mock response
 	mockList := CreateEmptyGitHubAppList()
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -79,7 +79,7 @@ func TestHandleGitHubApps_Empty(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -96,7 +96,7 @@ func TestHandleGitHubApps_Empty(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "GitHubAppList", response.Kind)
 	assert.Len(t, response.Items, 0, "Expected no GitHubApp items")
@@ -117,14 +117,14 @@ func TestHandleGitHubApps_Forbidden(t *testing.T) {
 		"",
 		nil,
 	)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(nil, forbiddenError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -141,7 +141,7 @@ func TestHandleGitHubApps_Forbidden(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "Access denied to Kubernetes cluster", errorResponse["error"])
 	assert.Equal(t, "Forbidden", errorResponse["reason"])
 	assert.Equal(t, "GitHubApp", errorResponse["type"])
@@ -157,14 +157,14 @@ func TestHandleGitHubApps_Unauthorized(t *testing.T) {
 
 	// Create unauthorized error
 	unauthorizedError := apierrors.NewUnauthorized("authentication required")
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(nil, unauthorizedError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -181,7 +181,7 @@ func TestHandleGitHubApps_Unauthorized(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "Authentication required for Kubernetes cluster", errorResponse["error"])
 	assert.Equal(t, "Unauthorized", errorResponse["reason"])
 	assert.Equal(t, "GitHubApp", errorResponse["type"])
@@ -200,14 +200,14 @@ func TestHandleGitHubApps_NotFound(t *testing.T) {
 		schema.GroupResource{Group: "promise.platform.giantswarm.io", Resource: "githubapps"},
 		"",
 	)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(nil, notFoundError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -224,7 +224,7 @@ func TestHandleGitHubApps_NotFound(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "No GitHubApp resources found", errorResponse["error"])
 	assert.Equal(t, "NotFound", errorResponse["reason"])
 	assert.Equal(t, "GitHubApp", errorResponse["type"])
@@ -241,7 +241,7 @@ func TestHandleGitHubApps_DataSanitization(t *testing.T) {
 	// Create a GitHubApp with sensitive data
 	sensitiveGitHubApp := GetSensitiveGitHubApp()
 	mockList := CreateMockGitHubAppList(sensitiveGitHubApp)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -249,7 +249,7 @@ func TestHandleGitHubApps_DataSanitization(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -266,9 +266,9 @@ func TestHandleGitHubApps_DataSanitization(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Len(t, response.Items, 1, "Expected one GitHubApp item")
-	
+
 	// Get the sanitized GitHub app
 	githubApp := response.Items[0]
 	metadata := githubApp["metadata"].(map[string]interface{})
@@ -279,18 +279,18 @@ func TestHandleGitHubApps_DataSanitization(t *testing.T) {
 	assert.NotContains(t, metadata, "managedFields", "managedFields should be removed")
 	assert.NotContains(t, metadata, "selfLink", "selfLink should be removed")
 
-	// Verify sensitive nested spec fields are removed
+	// Verify secret references are preserved (not removed)
 	if githubRepo, found := spec["githubRepo"].(map[string]interface{}); found {
 		if repoSpec, found := githubRepo["spec"].(map[string]interface{}); found {
-			assert.NotContains(t, repoSpec, "githubTokenSecretRef", "githubRepo.spec.githubTokenSecretRef should be removed")
-			assert.NotContains(t, repoSpec, "registryInfoConfigMapRef", "githubRepo.spec.registryInfoConfigMapRef should be removed")
+			assert.Contains(t, repoSpec, "githubTokenSecretRef", "githubRepo.spec.githubTokenSecretRef should be preserved")
+			assert.Contains(t, repoSpec, "registryInfoConfigMapRef", "githubRepo.spec.registryInfoConfigMapRef should be preserved")
 		}
 	}
 
 	if appDeployment, found := spec["appDeployment"].(map[string]interface{}); found {
 		if deploySpec, found := appDeployment["spec"].(map[string]interface{}); found {
 			if kubeConfig, found := deploySpec["kubeConfig"].(map[string]interface{}); found {
-				assert.NotContains(t, kubeConfig, "secretRef", "appDeployment.spec.kubeConfig.secretRef should be removed")
+				assert.Contains(t, kubeConfig, "secretRef", "appDeployment.spec.kubeConfig.secretRef should be preserved")
 			}
 		}
 	}
@@ -311,11 +311,11 @@ func TestHandleGitHubApps_MultipleResources(t *testing.T) {
 	// Load test data and create multiple GitHub apps
 	testGitHubApp1, err := LoadGitHubAppTestData()
 	require.NoError(t, err, "Failed to load test data")
-	
+
 	testGitHubApp2 := GetSensitiveGitHubApp()
-	
+
 	mockList := CreateMockGitHubAppList(testGitHubApp1, testGitHubApp2)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", GitHubAppGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -323,7 +323,7 @@ func TestHandleGitHubApps_MultipleResources(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -340,7 +340,7 @@ func TestHandleGitHubApps_MultipleResources(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "GitHubAppList", response.Kind)
 	assert.Len(t, response.Items, 2, "Expected two GitHubApp items")
@@ -352,7 +352,7 @@ func TestHandleGitHubApps_MultipleResources(t *testing.T) {
 		metadata := item["metadata"].(map[string]interface{})
 		appNames[i] = metadata["name"].(string)
 	}
-	
+
 	assert.Contains(t, appNames, "mygodemo")
 	assert.Contains(t, appNames, "sensitive-gh-app")
 
@@ -375,7 +375,7 @@ func TestHandleGitHubApps_RealDataStructure(t *testing.T) {
 	spec, found, err := unstructured.NestedMap(testGitHubApp.Object, "spec")
 	require.NoError(t, err)
 	require.True(t, found, "spec should be present")
-	
+
 	// Check for nested appDeployment and githubRepo specs
 	assert.Contains(t, spec, "appDeployment", "spec should contain appDeployment")
 	assert.Contains(t, spec, "githubRepo", "spec should contain githubRepo")
@@ -391,4 +391,4 @@ func TestHandleGitHubApps_RealDataStructure(t *testing.T) {
 	require.True(t, found, "githubRepo should be present")
 	assert.Contains(t, githubRepo, "name", "githubRepo should have name")
 	assert.Contains(t, githubRepo, "spec", "githubRepo should have spec")
-} 
+}

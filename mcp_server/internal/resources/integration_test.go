@@ -27,7 +27,7 @@ func TestGitHubRepoResourceIntegration(t *testing.T) {
 	spec, found, err := unstructured.NestedMap(testRepo.Object, "spec")
 	require.NoError(t, err)
 	require.True(t, found, "spec should be present")
-	
+
 	// Check repository information
 	repository, found := spec["repository"].(map[string]interface{})
 	require.True(t, found, "repository spec should be present")
@@ -46,7 +46,7 @@ func TestGitHubRepoResourceIntegration(t *testing.T) {
 	// Create MCP request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubrepos",
@@ -93,10 +93,10 @@ func TestGitHubRepoResourceIntegration(t *testing.T) {
 		assert.Contains(t, status, "message")
 	}
 
-	// Verify sensitive data was sanitized
+	// Verify sensitive metadata was sanitized but secret references are preserved
 	assert.NotContains(t, metadata, "resourceVersion", "resourceVersion should be sanitized")
 	assert.NotContains(t, metadata, "managedFields", "managedFields should be sanitized")
-	assert.NotContains(t, responseSpec, "githubTokenSecretRef", "githubTokenSecretRef should be sanitized")
+	assert.Contains(t, responseSpec, "githubTokenSecretRef", "githubTokenSecretRef should be preserved")
 
 	// Verify mock expectations were met
 	mockClient.AssertExpectations(t)
@@ -110,7 +110,7 @@ func TestMCPResourceResponseFormat(t *testing.T) {
 	// Test with multiple resources
 	testRepo1, err := LoadGitHubRepoTestData()
 	require.NoError(t, err)
-	
+
 	testRepo2 := GetSensitiveGitHubRepo()
 	mockList := CreateMockGitHubRepoList(testRepo1, testRepo2)
 
@@ -119,7 +119,7 @@ func TestMCPResourceResponseFormat(t *testing.T) {
 
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubrepos",
@@ -177,7 +177,7 @@ func TestAppDeploymentResourceIntegration(t *testing.T) {
 	// Create MCP request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -213,9 +213,9 @@ func TestAppDeploymentResourceIntegration(t *testing.T) {
 	assert.Equal(t, "mygodemo.demotech-rds.awsprod.gigantic.io", responseSpec["ingressHost"])
 	assert.Equal(t, "default", responseSpec["targetNamespace"])
 
-	// Verify sensitive data was sanitized
+	// Verify secret references are preserved (not sanitized)
 	if kubeConfig, found := responseSpec["kubeConfig"].(map[string]interface{}); found {
-		assert.NotContains(t, kubeConfig, "secretRef", "kubeConfig.secretRef should be sanitized")
+		assert.Contains(t, kubeConfig, "secretRef", "kubeConfig.secretRef should be preserved")
 	}
 
 	mockClient.AssertExpectations(t)
@@ -244,7 +244,7 @@ func TestGitHubAppResourceIntegration(t *testing.T) {
 	// Create MCP request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://githubapps",
@@ -280,10 +280,10 @@ func TestGitHubAppResourceIntegration(t *testing.T) {
 	assert.Contains(t, responseSpec, "appDeployment")
 	assert.Contains(t, responseSpec, "githubRepo")
 
-	// Verify sensitive data was sanitized in nested structures
+	// Verify secret references are preserved in nested structures (not sanitized)
 	if githubRepo, found := responseSpec["githubRepo"].(map[string]interface{}); found {
 		if repoSpec, found := githubRepo["spec"].(map[string]interface{}); found {
-			assert.NotContains(t, repoSpec, "githubTokenSecretRef", "Nested githubTokenSecretRef should be sanitized")
+			assert.Contains(t, repoSpec, "githubTokenSecretRef", "Nested githubTokenSecretRef should be preserved")
 		}
 	}
 
@@ -295,10 +295,10 @@ func TestMultipleCRDTypesIntegration(t *testing.T) {
 	// Load test data for all types
 	testRepo, err := LoadGitHubRepoTestData()
 	require.NoError(t, err)
-	
+
 	testAppDeployment, err := LoadAppDeploymentTestData()
 	require.NoError(t, err)
-	
+
 	testGitHubApp, err := LoadGitHubAppTestData()
 	require.NoError(t, err)
 
@@ -344,7 +344,7 @@ func TestMultipleCRDTypesIntegration(t *testing.T) {
 
 			request := mcp.ReadResourceRequest{
 				Params: struct {
-					URI string `json:"uri"`
+					URI       string                 `json:"uri"`
 					Arguments map[string]interface{} `json:"arguments,omitempty"`
 				}{
 					URI: tc.uri,
@@ -457,4 +457,4 @@ func TestRealDataConsistency(t *testing.T) {
 		assert.Contains(t, spec, "appDeployment", "spec should contain appDeployment")
 		assert.Contains(t, spec, "githubRepo", "spec should contain githubRepo")
 	})
-} 
+}

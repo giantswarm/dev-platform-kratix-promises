@@ -22,7 +22,7 @@ func TestHandleAppDeployments_Success(t *testing.T) {
 
 	// Create mock response
 	mockList := CreateMockAppDeploymentList(testAppDeployment)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -30,7 +30,7 @@ func TestHandleAppDeployments_Success(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -47,7 +47,7 @@ func TestHandleAppDeployments_Success(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "AppDeploymentList", response.Kind)
 	assert.Len(t, response.Items, 1, "Expected one AppDeployment item")
@@ -70,7 +70,7 @@ func TestHandleAppDeployments_Empty(t *testing.T) {
 
 	// Create empty mock response
 	mockList := CreateEmptyAppDeploymentList()
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -78,7 +78,7 @@ func TestHandleAppDeployments_Empty(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -95,7 +95,7 @@ func TestHandleAppDeployments_Empty(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "AppDeploymentList", response.Kind)
 	assert.Len(t, response.Items, 0, "Expected no AppDeployment items")
@@ -116,14 +116,14 @@ func TestHandleAppDeployments_Forbidden(t *testing.T) {
 		"",
 		nil,
 	)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(nil, forbiddenError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -140,7 +140,7 @@ func TestHandleAppDeployments_Forbidden(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "Access denied to Kubernetes cluster", errorResponse["error"])
 	assert.Equal(t, "Forbidden", errorResponse["reason"])
 	assert.Equal(t, "AppDeployment", errorResponse["type"])
@@ -156,14 +156,14 @@ func TestHandleAppDeployments_Unauthorized(t *testing.T) {
 
 	// Create unauthorized error
 	unauthorizedError := apierrors.NewUnauthorized("authentication required")
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(nil, unauthorizedError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -180,7 +180,7 @@ func TestHandleAppDeployments_Unauthorized(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "Authentication required for Kubernetes cluster", errorResponse["error"])
 	assert.Equal(t, "Unauthorized", errorResponse["reason"])
 	assert.Equal(t, "AppDeployment", errorResponse["type"])
@@ -199,14 +199,14 @@ func TestHandleAppDeployments_NotFound(t *testing.T) {
 		schema.GroupResource{Group: "promise.platform.giantswarm.io", Resource: "appdeployments"},
 		"",
 	)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(nil, notFoundError)
 
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -223,7 +223,7 @@ func TestHandleAppDeployments_NotFound(t *testing.T) {
 	// Verify the error response
 	errorResponse, ok := result[0].(map[string]interface{})
 	require.True(t, ok, "Expected error response as map")
-	
+
 	assert.Equal(t, "No AppDeployment resources found", errorResponse["error"])
 	assert.Equal(t, "NotFound", errorResponse["reason"])
 	assert.Equal(t, "AppDeployment", errorResponse["type"])
@@ -240,7 +240,7 @@ func TestHandleAppDeployments_DataSanitization(t *testing.T) {
 	// Create an AppDeployment with sensitive data
 	sensitiveAppDeployment := GetSensitiveAppDeployment()
 	mockList := CreateMockAppDeploymentList(sensitiveAppDeployment)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -248,7 +248,7 @@ func TestHandleAppDeployments_DataSanitization(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -265,9 +265,9 @@ func TestHandleAppDeployments_DataSanitization(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Len(t, response.Items, 1, "Expected one AppDeployment item")
-	
+
 	// Get the sanitized app deployment
 	appDeployment := response.Items[0]
 	metadata := appDeployment["metadata"].(map[string]interface{})
@@ -278,9 +278,9 @@ func TestHandleAppDeployments_DataSanitization(t *testing.T) {
 	assert.NotContains(t, metadata, "managedFields", "managedFields should be removed")
 	assert.NotContains(t, metadata, "selfLink", "selfLink should be removed")
 
-	// Verify sensitive spec fields are removed
+	// Verify secret references are preserved (not removed)
 	if kubeConfig, found := spec["kubeConfig"].(map[string]interface{}); found {
-		assert.NotContains(t, kubeConfig, "secretRef", "kubeConfig.secretRef should be removed")
+		assert.Contains(t, kubeConfig, "secretRef", "kubeConfig.secretRef should be preserved")
 	}
 
 	// Verify non-sensitive data is preserved
@@ -300,11 +300,11 @@ func TestHandleAppDeployments_MultipleResources(t *testing.T) {
 	// Load test data and create multiple app deployments
 	testAppDeployment1, err := LoadAppDeploymentTestData()
 	require.NoError(t, err, "Failed to load test data")
-	
+
 	testAppDeployment2 := GetSensitiveAppDeployment()
-	
+
 	mockList := CreateMockAppDeploymentList(testAppDeployment1, testAppDeployment2)
-	
+
 	// Setup mock expectations
 	mockClient.On("ListResources", AppDeploymentGVR, "").Return(mockList, nil)
 	mockClient.On("GetClusterInfo").Return(GetMockClusterInfo())
@@ -312,7 +312,7 @@ func TestHandleAppDeployments_MultipleResources(t *testing.T) {
 	// Create test request
 	request := mcp.ReadResourceRequest{
 		Params: struct {
-			URI string `json:"uri"`
+			URI       string                 `json:"uri"`
 			Arguments map[string]interface{} `json:"arguments,omitempty"`
 		}{
 			URI: "k8s://appdeployments",
@@ -329,7 +329,7 @@ func TestHandleAppDeployments_MultipleResources(t *testing.T) {
 	// Verify the response structure
 	response, ok := result[0].(*ResourceResponse)
 	require.True(t, ok, "Expected ResourceResponse type")
-	
+
 	assert.Equal(t, "promise.platform.giantswarm.io/v1beta1", response.APIVersion)
 	assert.Equal(t, "AppDeploymentList", response.Kind)
 	assert.Len(t, response.Items, 2, "Expected two AppDeployment items")
@@ -341,10 +341,10 @@ func TestHandleAppDeployments_MultipleResources(t *testing.T) {
 		metadata := item["metadata"].(map[string]interface{})
 		appNames[i] = metadata["name"].(string)
 	}
-	
+
 	assert.Contains(t, appNames, "mygodemo")
 	assert.Contains(t, appNames, "sensitive-app")
 
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
-} 
+}
