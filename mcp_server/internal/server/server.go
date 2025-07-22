@@ -79,6 +79,7 @@ func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler 
 		mcp.WithMIMEType("application/json"),
 	)
 	mcpServer.AddResource(appDeploymentResource, resourceHandler.HandleAppDeployments)
+	s.logger.Info("Registered MCP resources for App Deployments")
 
 	// Register GitHubApp resources
 	githubAppResource := mcp.NewResource(
@@ -88,6 +89,7 @@ func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler 
 		mcp.WithMIMEType("application/json"),
 	)
 	mcpServer.AddResource(githubAppResource, resourceHandler.HandleGitHubApps)
+	s.logger.Info("Registered MCP resources for GitHub Apps")
 
 	// Register GitHubRepo resources
 	githubRepoResource := mcp.NewResource(
@@ -97,11 +99,7 @@ func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler 
 		mcp.WithMIMEType("application/json"),
 	)
 	mcpServer.AddResource(githubRepoResource, resourceHandler.HandleGitHubRepos)
-
-	s.logger.Info("Registered MCP resources",
-		"appDeployments", "k8s://appdeployments",
-		"githubApps", "k8s://githubapps",
-		"githubRepos", "k8s://githubrepos")
+	s.logger.Info("Registered MCP resources for GitHub Repositories")
 }
 
 // Run starts the MCP server

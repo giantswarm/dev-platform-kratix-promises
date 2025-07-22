@@ -120,6 +120,8 @@ func (h *CRDResourceHandler) sanitizeResource(resource *unstructured.Unstructure
 		{"spec", "database", "passwordSecretRef"},
 		{"spec", "appDeployment", "spec", "githubTokenSecretRef"},
 		{"spec", "appDeployment", "spec", "kubeConfig", "secretRef"},
+		{"spec", "githubRepo", "spec", "githubTokenSecretRef"},
+		{"spec", "githubRepo", "spec", "registryInfoConfigMapRef"},
 	}
 
 	for _, fieldPath := range sensitiveFields {
