@@ -8,6 +8,7 @@ import (
 	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/clients"
 	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/config"
 	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/resources"
+	"github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/tools"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
@@ -57,8 +58,12 @@ func (s *Server) Initialize() error {
 	// Register MCP resources for Giant Swarm CRDs
 	s.registerResources(mcpServer, resourceHandler)
 
-	// TODO: In the future, we'll register tools here for:
-	// - Kubernetes API interactions
+	// Register MCP tools for Promise operations
+	s.registerTools(mcpServer, k8sClient)
+
+	// TODO: In the future, we'll register more tools here for:
+	// - High-level platform capabilities
+	// - Kubernetes API interactions beyond Promises
 	// - GitHub repository operations
 	// - IDP platform specific operations
 
@@ -100,6 +105,38 @@ func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler 
 	)
 	mcpServer.AddResource(githubRepoResource, resourceHandler.HandleGitHubRepos)
 	s.logger.Info("Registered MCP resources for GitHub Repositories")
+}
+
+// registerTools registers all MCP tools with the server
+func (s *Server) registerTools(mcpServer *server.MCPServer, k8sClient *clients.KubernetesClient) {
+	// Create Promise tools handler
+	promiseTools := tools.NewPromiseToolsHandler(k8sClient)
+
+	// Register list_kratix_promises tool
+	listPromisesTool := mcp.NewTool("list_kratix_promises",
+		mcp.WithDescription("List all available Kratix Promise objects in the cluster"),
+	)
+	mcpServer.AddTool(listPromisesTool, promiseTools.HandleListKratixPromises)
+	s.logger.Info("Registered MCP tool: list_kratix_promises")
+
+	// Register get_promise_schema tool
+	getSchemaTool := mcp.NewTool("get_promise_schema",
+		mcp.WithDescription("Get the complete OpenAPI schema for a specific Kratix Promise"),
+		mcp.WithString("promise_name", mcp.Description("Name of the Promise to get schema for"), mcp.Required()),
+	)
+	mcpServer.AddTool(getSchemaTool, promiseTools.HandleGetPromiseSchema)
+	s.logger.Info("Registered MCP tool: get_promise_schema")
+
+	// Register validate_promise_spec tool
+	validateTool := mcp.NewTool("validate_promise_spec",
+		mcp.WithDescription("Validate a resource specification against a Kratix Promise's schema"),
+		mcp.WithString("promise_name", mcp.Description("Name of the Promise to validate against"), mcp.Required()),
+		mcp.WithString("spec", mcp.Description("JSON string containing the resource specification to validate"), mcp.Required()),
+	)
+	mcpServer.AddTool(validateTool, promiseTools.HandleValidatePromiseSpec)
+	s.logger.Info("Registered MCP tool: validate_promise_spec")
+
+	s.logger.Info("Successfully registered all Promise-related MCP tools", "tools_count", 3)
 }
 
 // Run starts the MCP server
