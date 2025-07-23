@@ -1,0 +1,9 @@
+{
+	"interval": "invalid-interval",
+	"timeout": "invalid-timeout",
+	"values": {
+		"app": {
+			"name": "my-app"
+		}
+	}
+}

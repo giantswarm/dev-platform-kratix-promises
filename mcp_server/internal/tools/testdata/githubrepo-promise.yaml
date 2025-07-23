@@ -1,0 +1,172 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  creationTimestamp: "2024-08-30T13:12:26Z"
+  finalizers:
+  - kratix.io/api-crd-cleanup
+  - kratix.io/dynamic-controller-dependant-resources-cleanup
+  - kratix.io/dependencies-cleanup
+  - kratix.io/resource-request-cleanup
+  generation: 10
+  labels:
+    kratix.io/promise-version: v0.0.3
+    kustomize.toolkit.fluxcd.io/name: demotech-gitops
+    kustomize.toolkit.fluxcd.io/namespace: default
+  name: githubrepo
+  resourceVersion: "1221748618"
+  uid: fbed5204-b63c-4bf7-a700-d51b8e3e65a1
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: githubrepos.promise.platform.giantswarm.io
+    spec:
+      group: promise.platform.giantswarm.io
+      names:
+        kind: githubrepo
+        plural: githubrepos
+        singular: githubrepo
+      scope: Namespaced
+      versions:
+      - name: v1beta1
+        schema:
+          openAPIV3Schema:
+            properties:
+              spec:
+                properties:
+                  backstageCatalogEntity:
+                    description: Backstage catalog entity configuration
+                    properties:
+                      lifecycle:
+                        description: A lifecycle of the Backstage entity.
+                        type: string
+                      owner:
+                        description: A reference of the owning Backstage entity.
+                        type: string
+                    required:
+                    - owner
+                    - lifecycle
+                    type: object
+                  githubTokenSecretRef:
+                    description: The name and namespace of a Secret that has a key
+                      named "gh_token" with value if a GitHub authentication token
+                      used to create a new repository.
+                    properties:
+                      name:
+                        description: Object name.
+                        type: string
+                      namespace:
+                        description: Object's namespace.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  registryInfoConfigMapRef:
+                    description: The name and namespace of a ConfigMap that has keys
+                      named "registry_domain", "registry_username" and "registry_cicd_secret_ref"
+                      that configure access to  the image registry in the CICD GitHib
+                      Action.
+                    properties:
+                      name:
+                        description: Object name.
+                        type: string
+                      namespace:
+                        description: Object's namespace.
+                        type: string
+                    required:
+                    - name
+                    type: object
+                  repository:
+                    description: New repository configuration.
+                    properties:
+                      description:
+                        description: A description of the new repository.
+                        type: string
+                      name:
+                        description: A name for the new repository.
+                        type: string
+                      owner:
+                        description: A name of the owning GitHub organization or user.
+                        type: string
+                      templateSource:
+                        description: A full name (`user/repository`) of a GitHub template
+                          repository to use.
+                        type: string
+                      visibility:
+                        description: Visibility of the created repo.
+                        enum:
+                        - public
+                        - internal
+                        - private
+                        type: string
+                    required:
+                    - owner
+                    - name
+                    - description
+                    - templateSource
+                    - visibility
+                    type: object
+                required:
+                - backstageCatalogEntity
+                - repository
+                - registryInfoConfigMapRef
+                type: object
+            type: object
+        served: true
+        storage: true
+  workflows:
+    promise: {}
+    resource:
+      configure:
+      - apiVersion: platform.kratix.io/v1alpha1
+        kind: Pipeline
+        metadata:
+          name: github-repo-create
+        spec:
+          containers:
+          - image: gsoci.azurecr.io/giantswarm/github-cli-clone-template-repo-pipeline:1.1.0
+            imagePullPolicy: IfNotPresent
+            name: github-cli-clone-template-repo-pipeline
+          - image: gsoci.azurecr.io/giantswarm/github-cli-template-values-pipeline:1.2.0
+            imagePullPolicy: IfNotPresent
+            name: github-cli-template-values-pipeline
+            volumeMount:
+            - mountPath: /tmp/repo
+              name: repo
+          rbac:
+            permissions:
+            - apiGroups:
+              - ""
+              resources:
+              - secrets
+              verbs:
+              - get
+              - list
+            - apiGroups:
+              - ""
+              resources:
+              - configmaps
+              verbs:
+              - get
+              - list
+          volumes:
+          - emptyDir: {}
+            name: repo
+status:
+  apiVersion: promise.platform.giantswarm.io/v1beta1
+  conditions:
+  - lastTransitionTime: "2024-08-30T13:12:26Z"
+    message: Requirements fulfilled
+    reason: RequirementsInstalled
+    status: "True"
+    type: RequirementsFulfilled
+  kind: githubrepo
+  observedGeneration: 10
+  requiredBy:
+  - promise:
+      name: githubapp
+      version: v0.0.4
+    requiredVersion: v0.0.3
+  status: Available
+  version: v0.0.3

@@ -1,0 +1,8 @@
+{
+  "description": "Test repository for validation",
+  "private": "not-a-boolean",
+  "templateValues": {
+    "project_name": "my-test-repo"
+  },
+  "autoInit": "invalid-boolean"
+} 

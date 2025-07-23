@@ -1,0 +1,30 @@
+{
+	"database": {
+		"engine": "postgresql",
+		"eso": {
+			"clusterSsaField": "postgresql-cluster-ready"
+		},
+		"providerConfigRef": {
+			"name": "default-postgres-config"
+		}
+	},
+	"ingressHost": "my-app.example.com",
+	"interval": "5m",
+	"releaseName": "my-test-app",
+	"statusConfigMapReference": {
+		"name": "status-configmap"
+	},
+	"storageNamespace": "test-namespace",
+	"targetNamespace": "test-namespace",
+	"timeout": "10m",
+	"values": {
+		"image": {
+			"repository": "nginx",
+			"tag": "latest"
+		},
+		"service": {
+			"type": "ClusterIP",
+			"port": 80
+		}
+	}
+}

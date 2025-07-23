@@ -1,0 +1,13 @@
+{
+	"database": {
+		"engine": "postgresql"
+	},
+	"interval": "invalid-interval",
+	"timeout": "invalid-timeout",
+	"values": {
+		"image": {
+			"repository": "nginx",
+			"tag": "latest"
+		}
+	}
+}

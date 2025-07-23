@@ -1,0 +1,386 @@
+apiVersion: platform.kratix.io/v1alpha1
+kind: Promise
+metadata:
+  creationTimestamp: "2024-08-30T13:12:10Z"
+  finalizers:
+  - kratix.io/api-crd-cleanup
+  - kratix.io/dynamic-controller-dependant-resources-cleanup
+  - kratix.io/dependencies-cleanup
+  - kratix.io/resource-request-cleanup
+  generation: 12
+  labels:
+    kratix.io/promise-version: v0.0.4
+    kustomize.toolkit.fluxcd.io/name: demotech-gitops
+    kustomize.toolkit.fluxcd.io/namespace: default
+  name: githubapp
+  resourceVersion: "1221748658"
+  uid: f56e2223-bd17-414b-beaf-4179884e1c90
+spec:
+  api:
+    apiVersion: apiextensions.k8s.io/v1
+    kind: CustomResourceDefinition
+    metadata:
+      name: githubapps.promise.platform.giantswarm.io
+    spec:
+      group: promise.platform.giantswarm.io
+      names:
+        kind: githubapp
+        plural: githubapps
+        singular: githubapp
+      scope: Namespaced
+      versions:
+      - name: v1beta1
+        schema:
+          openAPIV3Schema:
+            description: A combo of AppDeloyment and GithubRepo
+            properties:
+              spec:
+                properties:
+                  appDeployment:
+                    properties:
+                      name:
+                        description: A name for the appdeployment object.
+                        type: string
+                      spec:
+                        description: AppDeploymentSpec defines the desired state of
+                          a Helm release and Logical Database.
+                        properties:
+                          database:
+                            description: Logical database related information.
+                            properties:
+                              engine:
+                                description: Database engine of the referenced database
+                                  cluster.
+                                type: string
+                              eso:
+                                description: ESO related configuration.
+                                properties:
+                                  clusterSsaField:
+                                    description: Field name that indicates the database
+                                      cluster being ready in the Flux SSA secret.
+                                    type: string
+                                  tenantCluster:
+                                    description: Tenant cluster related configuration.
+                                    properties:
+                                      apiServerEndpoint:
+                                        description: URL of the tenant cluster API
+                                          servers.
+                                        type: string
+                                      clusterName:
+                                        description: Name of the tenant workload cluster.
+                                        type: string
+                                      enabled:
+                                        default: false
+                                        description: Switch for the tenant cluster
+                                          configuration.
+                                        type: boolean
+                                    type: object
+                                required:
+                                - clusterSsaField
+                                type: object
+                              providerConfigRef:
+                                description: Database provider config reference information.
+                                properties:
+                                  name:
+                                    description: Name of the provider config reference
+                                      object for the given database engine.
+                                    type: string
+                                required:
+                                - name
+                                type: object
+                            required:
+                            - engine
+                            - eso
+                            - providerConfigRef
+                            type: object
+                          dependsOn:
+                            description: |-
+                              DependsOn may contain a meta.NamespacedObjectReference slice with
+                              references to AppDeployment resources that must be ready before this AppDeployment
+                              can be reconciled.
+                            items:
+                              description: |-
+                                NamespacedObjectReference contains enough information to locate the referenced Kubernetes resource object in any
+                                namespace.
+                              properties:
+                                name:
+                                  description: Name of the referent.
+                                  type: string
+                                namespace:
+                                  description: Namespace of the referent, when not
+                                    specified it acts as LocalObjectReference.
+                                  type: string
+                              required:
+                              - name
+                              type: object
+                            type: array
+                          ingressHost:
+                            description: FQDN to use for the hostname of the service
+                            type: string
+                          interval:
+                            default: 1m
+                            description: Interval at which to reconcile the Helm release.
+                            pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
+                            type: string
+                          kubeConfig:
+                            description: |-
+                              KubeConfig for reconciling the HelmRelease on a remote cluster.
+                              When used in combination with HelmReleaseSpec.ServiceAccountName,
+                              forces the controller to act on behalf of that Service Account at the
+                              target cluster.
+                              If the --default-service-account flag is set, its value will be used as
+                              a controller level fallback for when HelmReleaseSpec.ServiceAccountName
+                              is empty.
+                            properties:
+                              secretRef:
+                                description: |-
+                                  SecretRef holds the name of a secret that contains a key with
+                                  the kubeconfig file as the value. If no key is set, the key will default
+                                  to 'value'.
+                                  It is recommended that the kubeconfig is self-contained, and the secret
+                                  is regularly updated if credentials such as a cloud-access-token expire.
+                                  Cloud specific `cmd-path` auth helpers will not function without adding
+                                  binaries and credentials to the Pod that is responsible for reconciling
+                                  Kubernetes resources.
+                                properties:
+                                  key:
+                                    description: Key in the Secret, when not specified
+                                      an implementation-specific default key is used.
+                                    type: string
+                                  name:
+                                    description: Name of the Secret.
+                                    type: string
+                                required:
+                                - name
+                                type: object
+                            required:
+                            - secretRef
+                            type: object
+                          releaseName:
+                            description: ReleaseName used for the Helm release.
+                            type: string
+                          serviceAccountName:
+                            description: The name of the Kubernetes service account
+                              to impersonate when reconciling this HelmRelease.
+                            type: string
+                          storageNamespace:
+                            description: TargetNamespace to target when performing
+                              operations for the HelmRelease. Defaults to the namespace
+                              of the HelmRelease.
+                            type: string
+                          suspend:
+                            default: false
+                            description: |-
+                              Suspend tells the controller to suspend reconciliation for this AppDeployment,
+                              it does not apply to already started reconciliations. Defaults to false.
+                            type: boolean
+                          targetNamespace:
+                            description: StorageNamespace used for the Helm storage.
+                              Defaults to the namespace of the HelmRelease.
+                            type: string
+                          timeout:
+                            default: 3m
+                            description: Timeout when reconciling the Helm release.
+                            pattern: ^([0-9]+(\.[0-9]+)?(ms|s|m|h))+$
+                            type: string
+                          values:
+                            description: Values holds the values for this Helm release.
+                            x-kubernetes-preserve-unknown-fields: true
+                          valuesFrom:
+                            description: |-
+                              ValuesFrom holds references to resources containing Helm values for this AppDeployment,
+                              and information about how they should be merged.
+                            items:
+                              description: |-
+                                ValuesReference contains a reference to a resource containing Helm values,
+                                and optionally the key they can be found at.
+                              properties:
+                                kind:
+                                  description: Kind of the values referent, valid
+                                    values are ('Secret', 'ConfigMap').
+                                  enum:
+                                  - Secret
+                                  - ConfigMap
+                                  type: string
+                                name:
+                                  description: |-
+                                    Name of the values referent. Should reside in the same namespace as the
+                                    referring resource.
+                                  maxLength: 253
+                                  minLength: 1
+                                  type: string
+                                optional:
+                                  description: |-
+                                    Optional marks this ValuesReference as optional. When set, a not found error
+                                    for the values reference is ignored, but any ValuesKey, TargetPath or
+                                    transient error will still result in a reconciliation failure.
+                                  type: boolean
+                                targetPath:
+                                  description: |-
+                                    TargetPath is the YAML dot notation path the value should be merged at. When
+                                    set, the ValuesKey is expected to be a single flat value. Defaults to 'None',
+                                    which results in the values getting merged at the root.
+                                  maxLength: 250
+                                  pattern: ^([a-zA-Z0-9_\-.\\\/]|\[[0-9]{1,5}\])+$
+                                  type: string
+                                valuesKey:
+                                  description: |-
+                                    ValuesKey is the data key where the values.yaml or a specific value can be
+                                    found at. Defaults to 'values.yaml'.
+                                  maxLength: 253
+                                  pattern: ^[\-._a-zA-Z0-9]+$
+                                  type: string
+                              required:
+                              - kind
+                              - name
+                              type: object
+                            type: array
+                          version:
+                            default: '*'
+                            description: |-
+                              Version semver expression, ignored for charts from v1.GitRepository and
+                              v1beta2.Bucket sources. Defaults to latest when omitted.
+                            type: string
+                        required:
+                        - database
+                        - interval
+                        type: object
+                    required:
+                    - name
+                    - spec
+                    type: object
+                  githubRepo:
+                    properties:
+                      name:
+                        description: A name for the githubrepo object.
+                        type: string
+                      spec:
+                        properties:
+                          backstageCatalogEntity:
+                            description: Backstage catalog entity configuration
+                            properties:
+                              lifecycle:
+                                description: A lifecycle of the Backstage entity.
+                                type: string
+                              owner:
+                                description: A reference of the owning Backstage entity.
+                                type: string
+                            required:
+                            - owner
+                            - lifecycle
+                            type: object
+                          githubTokenSecretRef:
+                            description: The name and namespace of a Secret that has
+                              a key named "gh_token" with value if a GitHub authentication
+                              token used to create a new repository.
+                            properties:
+                              name:
+                                description: Object name.
+                                type: string
+                              namespace:
+                                description: Object's namespace.
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          registryInfoConfigMapRef:
+                            description: The name and namespace of a ConfigMap that
+                              has keys named "registry_domain", "registry_username"
+                              and "registry_cicd_secret_ref" that configure access
+                              to  the image registry in the CICD GitHib Action.
+                            properties:
+                              name:
+                                description: Object name.
+                                type: string
+                              namespace:
+                                description: Object's namespace.
+                                type: string
+                            required:
+                            - name
+                            type: object
+                          repository:
+                            description: New repository configuration.
+                            properties:
+                              description:
+                                description: A description of the new repository.
+                                type: string
+                              name:
+                                description: A name for the new repository.
+                                type: string
+                              owner:
+                                description: A name of the owning GitHub organization
+                                  or user.
+                                type: string
+                              templateSource:
+                                description: A full name (`user/repository`) of a
+                                  GitHub template repository to use.
+                                type: string
+                              visibility:
+                                description: Visibility of the created repo.
+                                enum:
+                                - public
+                                - internal
+                                - private
+                                type: string
+                            required:
+                            - owner
+                            - name
+                            - description
+                            - templateSource
+                            - visibility
+                            type: object
+                        required:
+                        - backstageCatalogEntity
+                        - repository
+                        - registryInfoConfigMapRef
+                        type: object
+                    required:
+                    - name
+                    - spec
+                    type: object
+                required:
+                - githubRepo
+                - appDeployment
+                type: object
+            required:
+            - spec
+            type: object
+        served: true
+        storage: true
+  requiredPromises:
+  - name: githubrepo
+    version: v0.0.3
+  - name: appdeployment
+    version: v0.0.3
+  workflows:
+    promise: {}
+    resource:
+      configure:
+      - apiVersion: platform.kratix.io/v1alpha1
+        kind: Pipeline
+        metadata:
+          name: template-requests
+        spec:
+          containers:
+          - image: gsoci.azurecr.io/giantswarm/githubapp-template-pipeline:1.0.0
+            imagePullPolicy: IfNotPresent
+            name: template-requests
+status:
+  apiVersion: promise.platform.giantswarm.io/v1beta1
+  conditions:
+  - lastTransitionTime: "2025-07-01T10:31:14Z"
+    message: Requirements fulfilled
+    reason: RequirementsInstalled
+    status: "True"
+    type: RequirementsFulfilled
+  kind: githubapp
+  observedGeneration: 12
+  requiredPromises:
+  - name: githubrepo
+    state: Requirement installed
+    version: v0.0.3
+  - name: appdeployment
+    state: Requirement installed
+    version: v0.0.3
+  status: Available
+  version: v0.0.4

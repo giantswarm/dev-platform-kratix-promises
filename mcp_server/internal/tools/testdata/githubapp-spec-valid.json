@@ -1,0 +1,23 @@
+{
+	"dependsOn": [
+		{
+			"name": "my-github-repo",
+			"namespace": "test-namespace"
+		}
+	],
+	"ingressHost": "my-github-app.example.com",
+	"interval": "5m",
+	"releaseName": "my-github-app",
+	"storageNamespace": "test-namespace",
+	"targetNamespace": "test-namespace",
+	"timeout": "10m",
+	"values": {
+		"app": {
+			"name": "my-app",
+			"version": "1.0.0"
+		},
+		"github": {
+			"repository": "myorg/myrepo"
+		}
+	}
+}

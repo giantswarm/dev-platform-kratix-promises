@@ -1,0 +1,15 @@
+{
+  "repoName": "my-test-repo",
+  "description": "Test repository for validation",
+  "private": true,
+  "templateRepository": "myorg/template-repo",
+  "templateValues": {
+    "project_name": "my-test-repo",
+    "organization": "myorg",
+    "description": "Test repository"
+  },
+  "topics": ["test", "automation"],
+  "autoInit": true,
+  "gitignoreTemplate": "Go",
+  "licenseTemplate": "MIT"
+} 
