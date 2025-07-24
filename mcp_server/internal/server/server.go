@@ -61,11 +61,8 @@ func (s *Server) Initialize() error {
 	// Register MCP tools for Promise operations
 	s.registerTools(mcpServer, k8sClient)
 
-	// TODO: In the future, we'll register more tools here for:
-	// - High-level platform capabilities
-	// - Kubernetes API interactions beyond Promises
-	// - GitHub repository operations
-	// - IDP platform specific operations
+	// Register MCP tools for high-level platform capabilities
+	s.registerCapabilityTools(mcpServer, k8sClient)
 
 	s.logger.Info("MCP server initialized with Kubernetes CRD resources",
 		"context", k8sClient.GetCurrentContext())
@@ -169,6 +166,21 @@ func (s *Server) registerTools(mcpServer *server.MCPServer, k8sClient *clients.K
 	s.logger.Info("Registered MCP tool: update_building_block")
 
 	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 6)
+}
+
+// registerCapabilityTools registers all high-level platform capability tools with the server
+func (s *Server) registerCapabilityTools(mcpServer *server.MCPServer, k8sClient *clients.KubernetesClient) {
+	// Create capability tools handler
+	capabilityTools := tools.NewCapabilityToolsHandler(k8sClient)
+
+	// Register list_platform_capabilities tool
+	listCapabilitiesTool := mcp.NewTool("list_platform_capabilities",
+		mcp.WithDescription("List all available high-level platform capabilities with execution prompts"),
+	)
+	mcpServer.AddTool(listCapabilitiesTool, capabilityTools.HandleListPlatformCapabilities)
+	s.logger.Info("Registered MCP tool: list_platform_capabilities")
+
+	s.logger.Info("Successfully registered all platform capability MCP tools", "tools_count", 1)
 }
 
 // Run starts the MCP server

@@ -107,3 +107,25 @@ type ValidationError struct {
 	Message string      `json:"message"`
 	Value   interface{} `json:"value"`
 }
+
+// PlatformCapability represents a high-level platform capability
+type PlatformCapability struct {
+	Name        string   `json:"name"`
+	Groups      []string `json:"groups"`
+	Description string   `json:"description"`
+	Prompt      string   `json:"prompt"`
+}
+
+// CapabilityGroup represents a logical grouping of capabilities
+type CapabilityGroup struct {
+	Name         string   `json:"name"`
+	Description  string   `json:"description"`
+	Capabilities []string `json:"capabilities"`
+}
+
+// PlatformCapabilitiesResponse represents the response for listing platform capabilities
+type PlatformCapabilitiesResponse struct {
+	Capabilities []PlatformCapability `json:"capabilities"`
+	Groups       []CapabilityGroup    `json:"groups"`
+	Metadata     map[string]interface{} `json:"metadata"`
+}
