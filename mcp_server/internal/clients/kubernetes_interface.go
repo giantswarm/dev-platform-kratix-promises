@@ -10,6 +10,7 @@ type KubernetesClientInterface interface {
 	ListResources(gvr schema.GroupVersionResource, namespace string) (*unstructured.UnstructuredList, error)
 	GetResource(gvr schema.GroupVersionResource, namespace, name string) (*unstructured.Unstructured, error)
 	CreateResource(gvr schema.GroupVersionResource, namespace string, obj *unstructured.Unstructured) (*unstructured.Unstructured, error)
+	DeleteResource(gvr schema.GroupVersionResource, namespace, name string) error
 	GetCurrentContext() string
 	GetClusterInfo() map[string]interface{}
 } 

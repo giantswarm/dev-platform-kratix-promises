@@ -210,6 +210,41 @@ func (k *KubernetesClient) GetResource(gvr schema.GroupVersionResource, namespac
 	return result, nil
 }
 
+// DeleteResource deletes a resource from the cluster
+func (k *KubernetesClient) DeleteResource(gvr schema.GroupVersionResource, namespace, name string) error {
+	ctx, cancel := context.WithTimeout(context.Background(), k.timeout)
+	defer cancel()
+
+	k.logger.Debug("Deleting Kubernetes resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", name)
+
+	var resourceInterface dynamic.ResourceInterface
+	if namespace == "" {
+		resourceInterface = k.client.Resource(gvr)
+	} else {
+		resourceInterface = k.client.Resource(gvr).Namespace(namespace)
+	}
+
+	err := resourceInterface.Delete(ctx, name, metav1.DeleteOptions{})
+	if err != nil {
+		k.logger.Error("Failed to delete resource", 
+			"gvr", gvr.String(), 
+			"namespace", namespace, 
+			"name", name, 
+			"error", err)
+		return fmt.Errorf("failed to delete %s/%s: %w", gvr.String(), name, err)
+	}
+
+	k.logger.Info("Successfully deleted resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", name)
+
+	return nil
+}
+
 // GetCurrentContext returns the current Kubernetes context
 func (k *KubernetesClient) GetCurrentContext() string {
 	return k.context

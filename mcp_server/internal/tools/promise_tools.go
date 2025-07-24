@@ -313,3 +313,101 @@ func (h *PromiseToolsHandler) HandleCreateBuildingBlock(arguments map[string]int
 
 	return mcp.NewToolResultText(string(jsonResponse)), nil
 }
+
+// HandleDeleteBuildingBlock handles the delete_building_block tool call
+func (h *PromiseToolsHandler) HandleDeleteBuildingBlock(arguments map[string]interface{}) (*mcp.CallToolResult, error) {
+	h.logger.Info("Handling delete_building_block tool call")
+
+	// Extract building_block_name parameter (this is the Promise name)
+	buildingBlockNameRaw, exists := arguments["building_block_name"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'building_block_name'"), nil
+	}
+
+	buildingBlockName, ok := buildingBlockNameRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'building_block_name' must be a string"), nil
+	}
+
+	// Extract resource_name parameter (name of the Custom Resource instance to delete)
+	resourceNameRaw, exists := arguments["resource_name"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'resource_name'"), nil
+	}
+
+	resourceName, ok := resourceNameRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'resource_name' must be a string"), nil
+	}
+
+	// Extract namespace parameter (required)
+	namespaceRaw, exists := arguments["namespace"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'namespace'"), nil
+	}
+
+	namespace, ok := namespaceRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'namespace' must be a string"), nil
+	}
+
+	// Get the Promise to extract target resource info
+	promiseSchema, err := h.extractor.GetPromiseSchema(buildingBlockName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to get building block schema for '%s': %v", buildingBlockName, err)), nil
+	}
+
+	// Construct the target GVR from the Promise's target resource info
+	targetGVR := schema.GroupVersionResource{
+		Group:    promiseSchema.TargetResource.Group,
+		Version:  promiseSchema.TargetResource.Version,
+		Resource: promiseSchema.TargetResource.Resource,
+	}
+
+	// Check if Custom Resource exists before attempting to delete
+	existing, err := h.k8sClient.GetResource(targetGVR, namespace, resourceName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Resource '%s' of type '%s' not found in namespace '%s': %v", resourceName, promiseSchema.TargetResource.Kind, namespace, err)), nil
+	}
+
+	// Delete the Custom Resource
+	err = h.k8sClient.DeleteResource(targetGVR, namespace, resourceName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to delete resource '%s' of type '%s': %v", resourceName, promiseSchema.TargetResource.Kind, err)), nil
+	}
+
+	// Build success response
+	response := map[string]interface{}{
+		"success":        true,
+		"resource_name":  resourceName,
+		"resource_type":  promiseSchema.TargetResource.Kind,
+		"building_block": buildingBlockName,
+		"status":         "deleted",
+		"metadata": map[string]interface{}{
+			"deleted_at":      time.Now().Format(time.RFC3339),
+			"cluster_context": h.k8sClient.GetCurrentContext(),
+		},
+		"details": map[string]interface{}{
+			"api_version":      existing.GetAPIVersion(),
+			"kind":             existing.GetKind(),
+			"namespace":        existing.GetNamespace(),
+			"uid":              existing.GetUID(),
+			"resource_version": existing.GetResourceVersion(),
+		},
+	}
+
+	// Format as JSON
+	jsonResponse, err := json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to format response: %v", err)), nil
+	}
+
+	h.logger.Info("Successfully deleted Custom Resource",
+		"resource_name", resourceName,
+		"resource_type", promiseSchema.TargetResource.Kind,
+		"building_block", buildingBlockName,
+		"namespace", namespace,
+		"uid", existing.GetUID())
+
+	return mcp.NewToolResultText(string(jsonResponse)), nil
+}

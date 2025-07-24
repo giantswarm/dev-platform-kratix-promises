@@ -42,6 +42,12 @@ func (m *MockKubernetesClient) CreateResource(gvr schema.GroupVersionResource, n
 	return args.Get(0).(*unstructured.Unstructured), args.Error(1)
 }
 
+// DeleteResource mocks the DeleteResource method
+func (m *MockKubernetesClient) DeleteResource(gvr schema.GroupVersionResource, namespace, name string) error {
+	args := m.Called(gvr, namespace, name)
+	return args.Error(0)
+}
+
 // GetCurrentContext mocks the GetCurrentContext method
 func (m *MockKubernetesClient) GetCurrentContext() string {
 	args := m.Called()

@@ -147,7 +147,17 @@ func (s *Server) registerTools(mcpServer *server.MCPServer, k8sClient *clients.K
 	mcpServer.AddTool(createTool, promiseTools.HandleCreateBuildingBlock)
 	s.logger.Info("Registered MCP tool: create_building_block")
 
-	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 4)
+	// Register delete_building_block tool
+	deleteTool := mcp.NewTool("delete_building_block",
+		mcp.WithDescription("Delete a Custom Resource instance based on a platform building block type"),
+		mcp.WithString("building_block_name", mcp.Description("Name of the building block (Promise) type"), mcp.Required()),
+		mcp.WithString("resource_name", mcp.Description("Name of the Custom Resource instance to delete"), mcp.Required()),
+		mcp.WithString("namespace", mcp.Description("Namespace where the Custom Resource is located"), mcp.Required()),
+	)
+	mcpServer.AddTool(deleteTool, promiseTools.HandleDeleteBuildingBlock)
+	s.logger.Info("Registered MCP tool: delete_building_block")
+
+	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 5)
 }
 
 // Run starts the MCP server
