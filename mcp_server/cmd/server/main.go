@@ -16,19 +16,22 @@ import (
 )
 
 func printHelp() {
-	fmt.Printf(`%s v%s - Kratix Promise MCP Server
+	fmt.Printf(`%s v%s - Platform Building Blocks MCP Server
 
 USAGE:
     %s [OPTIONS]
 
 DESCRIPTION:
     An MCP (Model Context Protocol) server that provides tools for discovering,
-    managing, and validating Kratix Promise resources in a Kubernetes cluster.
+    managing, and validating platform building blocks in a Kubernetes cluster.
+    
+    Building blocks are reusable platform components that developers can use
+    to create applications and infrastructure resources.
     
     This server exposes three main tools:
-    - list_kratix_promises: Discover all available Kratix Promises
-    - get_promise_schema: Get the OpenAPI schema for a specific Promise
-    - validate_promise_spec: Validate resource specifications against Promise schemas
+    - list_building_blocks: Discover all available platform building blocks
+    - get_building_block_schema: Get the OpenAPI schema for a specific building block
+    - validate_building_block_spec: Validate resource specifications against building block schemas
 
 OPTIONS:
     -h, --help          Show this help message and exit
@@ -81,7 +84,7 @@ ENVIRONMENT FILES:
 MCP PROTOCOL:
     This server implements the Model Context Protocol (MCP) which allows
     AI assistants to interact with external tools and data sources. The
-    server exposes Kubernetes Promise resources and validation capabilities
+    server exposes platform building blocks and validation capabilities
     to AI agents for infrastructure management tasks.
 
 `, config.AppName, config.Version, config.AppName, config.AppName, config.AppName, config.AppName, config.AppName)

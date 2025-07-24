@@ -9,6 +9,7 @@ import (
 	"github.com/mark3labs/mcp-go/mcp"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 )
 
 // CRDResourceHandler handles Giant Swarm CRD resources for MCP
@@ -27,54 +28,36 @@ func NewCRDResourceHandler(k8sClient clients.KubernetesClientInterface) *CRDReso
 
 // HandleAppDeployments handles MCP resource requests for AppDeployment CRDs
 func (h *CRDResourceHandler) HandleAppDeployments(request mcp.ReadResourceRequest) ([]interface{}, error) {
-	h.logger.Info("Handling AppDeployment resources request")
-
-	// List all AppDeployment resources across all namespaces
-	resources, err := h.k8sClient.ListResources(AppDeploymentGVR, "")
-	if err != nil {
-		return h.handleKubernetesErrorAsInterface(err, AppDeploymentType)
-	}
-
-	// Sanitize and format the response
-	h.sanitizeResources(resources)
-	response := h.formatResourceResponse(resources, AppDeploymentType, "")
-
-	return []interface{}{response}, nil
+	return h.HandleKratixPromises(request, AppDeploymentGVR, AppDeploymentType)
 }
 
 // HandleGitHubApps handles MCP resource requests for GitHubApp CRDs
 func (h *CRDResourceHandler) HandleGitHubApps(request mcp.ReadResourceRequest) ([]interface{}, error) {
-	h.logger.Info("Handling GitHubApp resources request")
-
-	// List all GitHubApp resources across all namespaces
-	resources, err := h.k8sClient.ListResources(GitHubAppGVR, "")
-	if err != nil {
-		return h.handleKubernetesErrorAsInterface(err, GitHubAppType)
-	}
-
-	// Sanitize and format the response
-	h.sanitizeResources(resources)
-	response := h.formatResourceResponse(resources, GitHubAppType, "")
-
-	return []interface{}{response}, nil
+	return h.HandleKratixPromises(request, GitHubAppGVR, GitHubAppType)
 }
 
 // HandleGitHubRepos handles MCP resource requests for GitHubRepo CRDs
 func (h *CRDResourceHandler) HandleGitHubRepos(request mcp.ReadResourceRequest) ([]interface{}, error) {
-	h.logger.Info("Handling GitHubRepo resources request")
+	return h.HandleKratixPromises(request, GitHubRepoGVR, GitHubRepoType)
+}
+
+// HandleKratixPromises handles MCP resource requests for KratixPromise CRDs
+func (h *CRDResourceHandler) HandleKratixPromises(request mcp.ReadResourceRequest, gvr schema.GroupVersionResource, crdType CRDResourceType) ([]interface{}, error) {
+	h.logger.Info("Handling resources request", "type", string(crdType))
 
 	// List all GitHubRepo resources across all namespaces
-	resources, err := h.k8sClient.ListResources(GitHubRepoGVR, "")
+	resources, err := h.k8sClient.ListResources(gvr, "")
 	if err != nil {
-		return h.handleKubernetesErrorAsInterface(err, GitHubRepoType)
+		return h.handleKubernetesErrorAsInterface(err, crdType)
 	}
 
 	// Sanitize and format the response
 	h.sanitizeResources(resources)
-	response := h.formatResourceResponse(resources, GitHubRepoType, "")
+	response := h.formatResourceResponse(resources, crdType, "")
 
 	return []interface{}{response}, nil
 }
+
 
 // formatResourceResponse formats Kubernetes resources into a standardized response
 func (h *CRDResourceHandler) formatResourceResponse(resources *unstructured.UnstructuredList, resourceType CRDResourceType, namespace string) *ResourceResponse {

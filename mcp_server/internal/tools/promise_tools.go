@@ -30,14 +30,14 @@ func NewPromiseToolsHandler(k8sClient clients.KubernetesClientInterface) *Promis
 	}
 }
 
-// HandleListKratixPromises handles the list_kratix_promises tool call
+// HandleListKratixPromises handles the list_building_blocks tool call
 func (h *PromiseToolsHandler) HandleListKratixPromises(arguments map[string]interface{}) (*mcp.CallToolResult, error) {
-	h.logger.Info("Handling list_kratix_promises tool call")
+	h.logger.Info("Handling list_building_blocks tool call")
 
-	// Get all Promise summaries
+	// Get all building block summaries (internally using Promise summaries)
 	summaries, err := h.extractor.ListPromiseSummaries()
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to list Kratix Promises: %v", err)), nil
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to list platform building blocks: %v", err)), nil
 	}
 
 	// Get cluster info for metadata
@@ -46,7 +46,7 @@ func (h *PromiseToolsHandler) HandleListKratixPromises(arguments map[string]inte
 
 	// Build response with metadata
 	response := map[string]interface{}{
-		"promises": summaries,
+		"building_blocks": summaries,
 		"metadata": map[string]interface{}{
 			"total_count":     len(summaries),
 			"cluster_context": currentContext,
@@ -61,29 +61,29 @@ func (h *PromiseToolsHandler) HandleListKratixPromises(arguments map[string]inte
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to format response: %v", err)), nil
 	}
 
-	h.logger.Info("Successfully listed Kratix Promises", "count", len(summaries))
+	h.logger.Info("Successfully listed platform building blocks", "count", len(summaries))
 	return mcp.NewToolResultText(string(jsonResponse)), nil
 }
 
-// HandleGetPromiseSchema handles the get_promise_schema tool call
+// HandleGetPromiseSchema handles the get_building_block_schema tool call
 func (h *PromiseToolsHandler) HandleGetPromiseSchema(arguments map[string]interface{}) (*mcp.CallToolResult, error) {
-	h.logger.Info("Handling get_promise_schema tool call")
+	h.logger.Info("Handling get_building_block_schema tool call")
 
-	// Extract promise_name parameter
-	promiseNameRaw, exists := arguments["promise_name"]
+	// Extract building_block_name parameter
+	buildingBlockNameRaw, exists := arguments["building_block_name"]
 	if !exists {
-		return mcp.NewToolResultError("Missing required parameter 'promise_name'"), nil
+		return mcp.NewToolResultError("Missing required parameter 'building_block_name'"), nil
 	}
 
-	promiseName, ok := promiseNameRaw.(string)
+	buildingBlockName, ok := buildingBlockNameRaw.(string)
 	if !ok {
-		return mcp.NewToolResultError("Parameter 'promise_name' must be a string"), nil
+		return mcp.NewToolResultError("Parameter 'building_block_name' must be a string"), nil
 	}
 
 	// Get the Promise schema
-	schema, err := h.extractor.GetPromiseSchema(promiseName)
+	schema, err := h.extractor.GetPromiseSchema(buildingBlockName)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to get Promise schema for '%s': %v", promiseName, err)), nil
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to get building block schema for '%s': %v", buildingBlockName, err)), nil
 	}
 
 	// Format as JSON
@@ -92,23 +92,23 @@ func (h *PromiseToolsHandler) HandleGetPromiseSchema(arguments map[string]interf
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to format schema response: %v", err)), nil
 	}
 
-	h.logger.Info("Successfully retrieved Promise schema", "promise", promiseName)
+	h.logger.Info("Successfully retrieved building block schema", "building_block", buildingBlockName)
 	return mcp.NewToolResultText(string(jsonResponse)), nil
 }
 
-// HandleValidatePromiseSpec handles the validate_promise_spec tool call
+// HandleValidatePromiseSpec handles the validate_building_block_spec tool call
 func (h *PromiseToolsHandler) HandleValidatePromiseSpec(arguments map[string]interface{}) (*mcp.CallToolResult, error) {
-	h.logger.Info("Handling validate_promise_spec tool call")
+	h.logger.Info("Handling validate_building_block_spec tool call")
 
-	// Extract promise_name parameter
-	promiseNameRaw, exists := arguments["promise_name"]
+	// Extract building_block_name parameter
+	buildingBlockNameRaw, exists := arguments["building_block_name"]
 	if !exists {
-		return mcp.NewToolResultError("Missing required parameter 'promise_name'"), nil
+		return mcp.NewToolResultError("Missing required parameter 'building_block_name'"), nil
 	}
 
-	promiseName, ok := promiseNameRaw.(string)
+	buildingBlockName, ok := buildingBlockNameRaw.(string)
 	if !ok {
-		return mcp.NewToolResultError("Parameter 'promise_name' must be a string"), nil
+		return mcp.NewToolResultError("Parameter 'building_block_name' must be a string"), nil
 	}
 
 	// Extract spec parameter
@@ -129,9 +129,9 @@ func (h *PromiseToolsHandler) HandleValidatePromiseSpec(arguments map[string]int
 	}
 
 	// Get the Promise schema
-	promiseSchema, err := h.extractor.GetPromiseSchema(promiseName)
+	promiseSchema, err := h.extractor.GetPromiseSchema(buildingBlockName)
 	if err != nil {
-		return mcp.NewToolResultError(fmt.Sprintf("Failed to get Promise schema for '%s': %v", promiseName, err)), nil
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to get building block schema for '%s': %v", buildingBlockName, err)), nil
 	}
 
 	// Validate the spec against the schema
@@ -143,7 +143,7 @@ func (h *PromiseToolsHandler) HandleValidatePromiseSpec(arguments map[string]int
 	// Build validation result
 	result := &resources.ValidationResult{
 		Valid:            len(validationDetails.Errors) == 0,
-		PromiseName:      promiseName,
+		PromiseName:      buildingBlockName,
 		ValidationResult: *validationDetails,
 	}
 
@@ -153,6 +153,10 @@ func (h *PromiseToolsHandler) HandleValidatePromiseSpec(arguments map[string]int
 		return mcp.NewToolResultError(fmt.Sprintf("Failed to format validation response: %v", err)), nil
 	}
 
-	h.logger.Info("Successfully validated Promise spec", "promise", promiseName, "valid", result.Valid, "errors", len(validationDetails.Errors))
+	h.logger.Info("Successfully validated building block spec",
+		"building_block", buildingBlockName,
+		"valid", result.Valid,
+		"errors", len(validationDetails.Errors))
+
 	return mcp.NewToolResultText(string(jsonResponse)), nil
 }

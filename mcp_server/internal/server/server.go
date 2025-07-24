@@ -109,34 +109,34 @@ func (s *Server) registerResources(mcpServer *server.MCPServer, resourceHandler 
 
 // registerTools registers all MCP tools with the server
 func (s *Server) registerTools(mcpServer *server.MCPServer, k8sClient *clients.KubernetesClient) {
-	// Create Promise tools handler
+	// Create Promise tools handler (internal implementation uses Kratix Promises)
 	promiseTools := tools.NewPromiseToolsHandler(k8sClient)
 
-	// Register list_kratix_promises tool
-	listPromisesTool := mcp.NewTool("list_kratix_promises",
-		mcp.WithDescription("List all available Kratix Promise objects in the cluster"),
+	// Register list_building_blocks tool
+	listTool := mcp.NewTool("list_building_blocks",
+		mcp.WithDescription("List all available platform building blocks in the cluster"),
 	)
-	mcpServer.AddTool(listPromisesTool, promiseTools.HandleListKratixPromises)
-	s.logger.Info("Registered MCP tool: list_kratix_promises")
+	mcpServer.AddTool(listTool, promiseTools.HandleListKratixPromises)
+	s.logger.Info("Registered MCP tool: list_building_blocks")
 
-	// Register get_promise_schema tool
-	getSchemaTool := mcp.NewTool("get_promise_schema",
-		mcp.WithDescription("Get the complete OpenAPI schema for a specific Kratix Promise"),
-		mcp.WithString("promise_name", mcp.Description("Name of the Promise to get schema for"), mcp.Required()),
+	// Register get_building_block_schema tool
+	getSchemaTool := mcp.NewTool("get_building_block_schema",
+		mcp.WithDescription("Get the complete OpenAPI schema for a specific platform building block"),
+		mcp.WithString("building_block_name", mcp.Description("Name of the building block to get schema for"), mcp.Required()),
 	)
 	mcpServer.AddTool(getSchemaTool, promiseTools.HandleGetPromiseSchema)
-	s.logger.Info("Registered MCP tool: get_promise_schema")
+	s.logger.Info("Registered MCP tool: get_building_block_schema")
 
-	// Register validate_promise_spec tool
-	validateTool := mcp.NewTool("validate_promise_spec",
-		mcp.WithDescription("Validate a resource specification against a Kratix Promise's schema"),
-		mcp.WithString("promise_name", mcp.Description("Name of the Promise to validate against"), mcp.Required()),
+	// Register validate_building_block_spec tool
+	validateTool := mcp.NewTool("validate_building_block_spec",
+		mcp.WithDescription("Validate a resource specification against a platform building block's schema"),
+		mcp.WithString("building_block_name", mcp.Description("Name of the building block to validate against"), mcp.Required()),
 		mcp.WithString("spec", mcp.Description("JSON string containing the resource specification to validate"), mcp.Required()),
 	)
 	mcpServer.AddTool(validateTool, promiseTools.HandleValidatePromiseSpec)
-	s.logger.Info("Registered MCP tool: validate_promise_spec")
+	s.logger.Info("Registered MCP tool: validate_building_block_spec")
 
-	s.logger.Info("Successfully registered all Promise-related MCP tools", "tools_count", 3)
+	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 3)
 }
 
 // Run starts the MCP server
