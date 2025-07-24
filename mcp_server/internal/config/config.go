@@ -39,7 +39,7 @@ func Load() *Config {
 		Port:           getEnvInt("MCP_PORT", 8080),
 		LogLevel:       getEnvString("LOG_LEVEL", "info"),
 		LogFormat:      getEnvString("LOG_FORMAT", "json"),
-		KubeConfigPath: getEnvString("KUBE_CONFIG_PATH", ""),
+		KubeConfigPath: getEnvString("KUBECONFIG", "~/.kube/config"),
 		KubeContext:    getEnvString("KUBE_CONTEXT", ""),
 		K8sTimeout:     getEnvString("K8S_TIMEOUT", "30s"),
 	}

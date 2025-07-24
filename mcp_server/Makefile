@@ -1,5 +1,5 @@
 # Variables
-BINARY_NAME := mcp-server
+BINARY_NAME := idp-mcp-server
 CMD_DIR := ./cmd/server
 VERSION ?= dev
 LDFLAGS := -X github.com/giantswarm/dev-platform-kratix-promises/mcp_server/internal/config.Version=$(VERSION)
