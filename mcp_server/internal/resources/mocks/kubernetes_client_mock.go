@@ -33,6 +33,15 @@ func (m *MockKubernetesClient) GetResource(gvr schema.GroupVersionResource, name
 	return args.Get(0).(*unstructured.Unstructured), args.Error(1)
 }
 
+// CreateResource mocks the CreateResource method
+func (m *MockKubernetesClient) CreateResource(gvr schema.GroupVersionResource, namespace string, obj *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	args := m.Called(gvr, namespace, obj)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*unstructured.Unstructured), args.Error(1)
+}
+
 // GetCurrentContext mocks the GetCurrentContext method
 func (m *MockKubernetesClient) GetCurrentContext() string {
 	args := m.Called()

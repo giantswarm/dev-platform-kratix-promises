@@ -28,10 +28,11 @@ DESCRIPTION:
     Building blocks are reusable platform components that developers can use
     to create applications and infrastructure resources.
     
-    This server exposes three main tools:
+    This server exposes four main tools:
     - list_building_blocks: Discover all available platform building blocks
     - get_building_block_schema: Get the OpenAPI schema for a specific building block
     - validate_building_block_spec: Validate resource specifications against building block schemas
+    - create_building_block: Create Custom Resource instances using building block schemas
 
 OPTIONS:
     -h, --help          Show this help message and exit

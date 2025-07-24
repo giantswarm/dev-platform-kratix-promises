@@ -139,6 +139,42 @@ func (k *KubernetesClient) ListResources(gvr schema.GroupVersionResource, namesp
 	return result, nil
 }
 
+// CreateResource creates a new resource in the cluster
+func (k *KubernetesClient) CreateResource(gvr schema.GroupVersionResource, namespace string, obj *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), k.timeout)
+	defer cancel()
+
+	k.logger.Debug("Creating Kubernetes resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", obj.GetName())
+
+	var resourceInterface dynamic.ResourceInterface
+	if namespace == "" {
+		resourceInterface = k.client.Resource(gvr)
+	} else {
+		resourceInterface = k.client.Resource(gvr).Namespace(namespace)
+	}
+
+	result, err := resourceInterface.Create(ctx, obj, metav1.CreateOptions{})
+	if err != nil {
+		k.logger.Error("Failed to create resource", 
+			"gvr", gvr.String(), 
+			"namespace", namespace, 
+			"name", obj.GetName(), 
+			"error", err)
+		return nil, fmt.Errorf("failed to create %s/%s: %w", gvr.String(), obj.GetName(), err)
+	}
+
+	k.logger.Info("Successfully created resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", result.GetName(),
+		"uid", result.GetUID())
+
+	return result, nil
+}
+
 // GetResource gets a specific resource by name
 func (k *KubernetesClient) GetResource(gvr schema.GroupVersionResource, namespace, name string) (*unstructured.Unstructured, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), k.timeout)

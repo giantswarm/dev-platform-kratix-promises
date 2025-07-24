@@ -136,7 +136,18 @@ func (s *Server) registerTools(mcpServer *server.MCPServer, k8sClient *clients.K
 	mcpServer.AddTool(validateTool, promiseTools.HandleValidatePromiseSpec)
 	s.logger.Info("Registered MCP tool: validate_building_block_spec")
 
-	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 3)
+	// Register create_building_block tool
+	createTool := mcp.NewTool("create_building_block",
+		mcp.WithDescription("Create a new Custom Resource instance based on a platform building block schema"),
+		mcp.WithString("building_block_name", mcp.Description("Name of the building block (Promise) to use for schema"), mcp.Required()),
+		mcp.WithString("resource_name", mcp.Description("Name for the new Custom Resource instance"), mcp.Required()),
+		mcp.WithString("spec", mcp.Description("JSON specification for the Custom Resource following the building block's schema"), mcp.Required()),
+		mcp.WithString("namespace", mcp.Description("Target namespace for the Custom Resource"), mcp.Required()),
+	)
+	mcpServer.AddTool(createTool, promiseTools.HandleCreateBuildingBlock)
+	s.logger.Info("Registered MCP tool: create_building_block")
+
+	s.logger.Info("Successfully registered all platform building block MCP tools", "tools_count", 4)
 }
 
 // Run starts the MCP server

@@ -60,12 +60,12 @@ func TestPromiseToolsHandler_HandleListKratixPromises_Success(t *testing.T) {
 	require.NoError(t, err)
 
 	// Verify response structure
-	assert.Contains(t, response, "promises")
+	assert.Contains(t, response, "building_blocks")
 	assert.Contains(t, response, "metadata")
 
-	promises, ok := response["promises"].([]interface{})
-	require.True(t, ok, "promises should be an array")
-	assert.Len(t, promises, 3, "Expected 3 promises")
+	buildingBlocks, ok := response["building_blocks"].([]interface{})
+	require.True(t, ok, "building_blocks should be an array")
+	assert.Len(t, buildingBlocks, 3, "Expected 3 building_blocks")
 
 	metadata, ok := response["metadata"].(map[string]interface{})
 	require.True(t, ok, "metadata should be an object")
@@ -73,8 +73,8 @@ func TestPromiseToolsHandler_HandleListKratixPromises_Success(t *testing.T) {
 	assert.Equal(t, "test-cluster-context", metadata["cluster_context"])
 
 	// Verify promise names
-	promiseNames := make([]string, len(promises))
-	for i, p := range promises {
+	promiseNames := make([]string, len(buildingBlocks))
+	for i, p := range buildingBlocks {
 		promise, ok := p.(map[string]interface{})
 		require.True(t, ok)
 		promiseNames[i] = promise["name"].(string)
@@ -101,7 +101,7 @@ func TestPromiseToolsHandler_HandleGetPromiseSchema_Success(t *testing.T) {
 
 	// Execute
 	arguments := map[string]interface{}{
-		"promise_name": "appdeployment",
+		"building_block_name": "appdeployment",
 	}
 	result, err := handler.HandleGetPromiseSchema(arguments)
 
@@ -150,7 +150,7 @@ func TestPromiseToolsHandler_HandleGetPromiseSchema_NotFound(t *testing.T) {
 
 	// Execute
 	arguments := map[string]interface{}{
-		"promise_name": "nonexistent",
+		"building_block_name": "nonexistent",
 	}
 	result, err := handler.HandleGetPromiseSchema(arguments)
 
@@ -163,7 +163,7 @@ func TestPromiseToolsHandler_HandleGetPromiseSchema_NotFound(t *testing.T) {
 	textContent, ok := result.Content[0].(mcp.TextContent)
 	require.True(t, ok, "Expected TextContent")
 	text := textContent.Text
-	assert.Contains(t, text, "Failed to get Promise schema for 'nonexistent'")
+	assert.Contains(t, text, "Failed to get building block schema for 'nonexistent'")
 
 	// Verify mock expectations
 	mockClient.AssertExpectations(t)
@@ -190,8 +190,8 @@ func TestPromiseToolsHandler_HandleValidatePromiseSpec_Valid(t *testing.T) {
 
 	// Execute
 	arguments := map[string]interface{}{
-		"promise_name": "appdeployment",
-		"spec":         string(validSpecJSON),
+		"building_block_name": "appdeployment",
+		"spec":                string(validSpecJSON),
 	}
 	result, err := handler.HandleValidatePromiseSpec(arguments)
 
@@ -240,8 +240,8 @@ func TestPromiseToolsHandler_HandleValidatePromiseSpec_Invalid(t *testing.T) {
 
 	// Execute
 	arguments := map[string]interface{}{
-		"promise_name": "appdeployment",
-		"spec":         string(invalidSpecJSON),
+		"building_block_name": "appdeployment",
+		"spec":                string(invalidSpecJSON),
 	}
 	result, err := handler.HandleValidatePromiseSpec(arguments)
 
@@ -296,18 +296,18 @@ func TestPromiseToolsHandler_HandleValidatePromiseSpec_MissingParameters(t *test
 		errorMsg  string
 	}{
 		{
-			name:      "missing promise_name",
+			name:      "missing building_block_name",
 			arguments: map[string]interface{}{"spec": `{"test": "value"}`},
-			errorMsg:  "Missing required parameter 'promise_name'",
+			errorMsg:  "Missing required parameter 'building_block_name'",
 		},
 		{
 			name:      "missing spec",
-			arguments: map[string]interface{}{"promise_name": "appdeployment"},
+			arguments: map[string]interface{}{"building_block_name": "appdeployment"},
 			errorMsg:  "Missing required parameter 'spec'",
 		},
 		{
 			name:      "invalid JSON spec",
-			arguments: map[string]interface{}{"promise_name": "appdeployment", "spec": `{invalid json`},
+			arguments: map[string]interface{}{"building_block_name": "appdeployment", "spec": `{invalid json`},
 			errorMsg:  "Invalid JSON in 'spec' parameter",
 		},
 	}
