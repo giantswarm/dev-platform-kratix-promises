@@ -175,6 +175,43 @@ func (k *KubernetesClient) CreateResource(gvr schema.GroupVersionResource, names
 	return result, nil
 }
 
+// UpdateResource updates an existing resource in the cluster
+func (k *KubernetesClient) UpdateResource(gvr schema.GroupVersionResource, namespace string, obj *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), k.timeout)
+	defer cancel()
+
+	k.logger.Debug("Updating Kubernetes resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", obj.GetName())
+
+	var resourceInterface dynamic.ResourceInterface
+	if namespace == "" {
+		resourceInterface = k.client.Resource(gvr)
+	} else {
+		resourceInterface = k.client.Resource(gvr).Namespace(namespace)
+	}
+
+	result, err := resourceInterface.Update(ctx, obj, metav1.UpdateOptions{})
+	if err != nil {
+		k.logger.Error("Failed to update resource", 
+			"gvr", gvr.String(), 
+			"namespace", namespace, 
+			"name", obj.GetName(), 
+			"error", err)
+		return nil, fmt.Errorf("failed to update %s/%s: %w", gvr.String(), obj.GetName(), err)
+	}
+
+	k.logger.Info("Successfully updated resource", 
+		"gvr", gvr.String(), 
+		"namespace", namespace, 
+		"name", result.GetName(),
+		"uid", result.GetUID(),
+		"resource_version", result.GetResourceVersion())
+
+	return result, nil
+}
+
 // GetResource gets a specific resource by name
 func (k *KubernetesClient) GetResource(gvr schema.GroupVersionResource, namespace, name string) (*unstructured.Unstructured, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), k.timeout)

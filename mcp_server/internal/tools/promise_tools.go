@@ -411,3 +411,152 @@ func (h *PromiseToolsHandler) HandleDeleteBuildingBlock(arguments map[string]int
 
 	return mcp.NewToolResultText(string(jsonResponse)), nil
 }
+
+// HandleUpdateBuildingBlock handles the update_building_block tool call
+func (h *PromiseToolsHandler) HandleUpdateBuildingBlock(arguments map[string]interface{}) (*mcp.CallToolResult, error) {
+	h.logger.Info("Handling update_building_block tool call")
+
+	// Extract building_block_name parameter (this is the Promise name)
+	buildingBlockNameRaw, exists := arguments["building_block_name"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'building_block_name'"), nil
+	}
+
+	buildingBlockName, ok := buildingBlockNameRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'building_block_name' must be a string"), nil
+	}
+
+	// Extract resource_name parameter (name of the Custom Resource instance to update)
+	resourceNameRaw, exists := arguments["resource_name"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'resource_name'"), nil
+	}
+
+	resourceName, ok := resourceNameRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'resource_name' must be a string"), nil
+	}
+
+	// Extract spec parameter
+	specRaw, exists := arguments["spec"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'spec'"), nil
+	}
+
+	specString, ok := specRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'spec' must be a JSON string"), nil
+	}
+
+	// Extract namespace parameter (required)
+	namespaceRaw, exists := arguments["namespace"]
+	if !exists {
+		return mcp.NewToolResultError("Missing required parameter 'namespace'"), nil
+	}
+
+	namespace, ok := namespaceRaw.(string)
+	if !ok {
+		return mcp.NewToolResultError("Parameter 'namespace' must be a string"), nil
+	}
+
+	// Parse the JSON string into a map
+	var spec map[string]interface{}
+	if err := json.Unmarshal([]byte(specString), &spec); err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Invalid JSON in 'spec' parameter: %v", err)), nil
+	}
+
+	// Get the Promise to extract target resource info and schema
+	promiseSchema, err := h.extractor.GetPromiseSchema(buildingBlockName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to get building block schema for '%s': %v", buildingBlockName, err)), nil
+	}
+
+	// Validate the spec against the Promise's schema
+	validationDetails, err := h.validator.ValidateSpec(promiseSchema.OpenAPISchema, spec)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to validate spec: %v", err)), nil
+	}
+
+	if len(validationDetails.Errors) > 0 {
+		// Return validation errors
+		result := &resources.ValidationResult{
+			Valid:            false,
+			PromiseName:      buildingBlockName,
+			ValidationResult: *validationDetails,
+		}
+
+		jsonResponse, err := json.MarshalIndent(result, "", "  ")
+		if err != nil {
+			return mcp.NewToolResultError(fmt.Sprintf("Failed to format validation response: %v", err)), nil
+		}
+
+		return mcp.NewToolResultError(fmt.Sprintf("Validation failed for building block spec:\n%s", string(jsonResponse))), nil
+	}
+
+	// Construct the target GVR from the Promise's target resource info
+	targetGVR := schema.GroupVersionResource{
+		Group:    promiseSchema.TargetResource.Group,
+		Version:  promiseSchema.TargetResource.Version,
+		Resource: promiseSchema.TargetResource.Resource,
+	}
+
+	// Get the existing Custom Resource
+	existing, err := h.k8sClient.GetResource(targetGVR, namespace, resourceName)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Resource '%s' of type '%s' not found in namespace '%s': %v", resourceName, promiseSchema.TargetResource.Kind, namespace, err)), nil
+	}
+
+	// Create updated resource preserving existing metadata
+	updatedResource := existing.DeepCopy()
+
+	// Update only the spec, preserve all existing metadata and other fields
+	err = unstructured.SetNestedField(updatedResource.Object, spec, "spec")
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to set updated spec: %v", err)), nil
+	}
+
+	// Update the resource in Kubernetes
+	updated, err := h.k8sClient.UpdateResource(targetGVR, namespace, updatedResource)
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to update resource '%s' of type '%s': %v", resourceName, promiseSchema.TargetResource.Kind, err)), nil
+	}
+
+	// Build success response
+	response := map[string]interface{}{
+		"success":        true,
+		"resource_name":  resourceName,
+		"resource_type":  promiseSchema.TargetResource.Kind,
+		"building_block": buildingBlockName,
+		"status":         "updated",
+		"metadata": map[string]interface{}{
+			"updated_at":      time.Now().Format(time.RFC3339),
+			"cluster_context": h.k8sClient.GetCurrentContext(),
+		},
+		"details": map[string]interface{}{
+			"api_version":               updated.GetAPIVersion(),
+			"kind":                      updated.GetKind(),
+			"namespace":                 updated.GetNamespace(),
+			"uid":                       updated.GetUID(),
+			"previous_resource_version": existing.GetResourceVersion(),
+			"new_resource_version":      updated.GetResourceVersion(),
+		},
+	}
+
+	// Format as JSON
+	jsonResponse, err := json.MarshalIndent(response, "", "  ")
+	if err != nil {
+		return mcp.NewToolResultError(fmt.Sprintf("Failed to format response: %v", err)), nil
+	}
+
+	h.logger.Info("Successfully updated Custom Resource",
+		"resource_name", resourceName,
+		"resource_type", promiseSchema.TargetResource.Kind,
+		"building_block", buildingBlockName,
+		"namespace", namespace,
+		"uid", updated.GetUID(),
+		"previous_version", existing.GetResourceVersion(),
+		"new_version", updated.GetResourceVersion())
+
+	return mcp.NewToolResultText(string(jsonResponse)), nil
+}

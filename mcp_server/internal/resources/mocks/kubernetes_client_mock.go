@@ -42,6 +42,15 @@ func (m *MockKubernetesClient) CreateResource(gvr schema.GroupVersionResource, n
 	return args.Get(0).(*unstructured.Unstructured), args.Error(1)
 }
 
+// UpdateResource mocks the UpdateResource method
+func (m *MockKubernetesClient) UpdateResource(gvr schema.GroupVersionResource, namespace string, obj *unstructured.Unstructured) (*unstructured.Unstructured, error) {
+	args := m.Called(gvr, namespace, obj)
+	if args.Get(0) == nil {
+		return nil, args.Error(1)
+	}
+	return args.Get(0).(*unstructured.Unstructured), args.Error(1)
+}
+
 // DeleteResource mocks the DeleteResource method
 func (m *MockKubernetesClient) DeleteResource(gvr schema.GroupVersionResource, namespace, name string) error {
 	args := m.Called(gvr, namespace, name)
